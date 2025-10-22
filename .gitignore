@@ -66,6 +66,7 @@ HELP.md
 application-local.properties
 application-dev.properties
 application-secret.properties
+api-keys.properties
 
 ### Environment Variables ###
 .env
