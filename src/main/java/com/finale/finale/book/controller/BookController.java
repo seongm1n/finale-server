@@ -1,8 +1,8 @@
 package com.finale.finale.book.controller;
 
-import com.finale.finale.book.dto.BookRequest;
-import com.finale.finale.book.dto.BookResponse;
-import com.finale.finale.book.service.BookService;
+import com.finale.finale.book.dto.StoryGenerationRequest;
+import com.finale.finale.book.dto.StoryGenerationResponse;
+import com.finale.finale.book.service.StoryGenerationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class BookController {
 
-    private final BookService bookService;
+    private final StoryGenerationService storyGenerationService;
 
     @PostMapping("/generate")
-    public ResponseEntity<BookResponse> generate(@RequestBody BookRequest request) {
+    public ResponseEntity<StoryGenerationResponse> generate(@RequestBody StoryGenerationRequest request) {
         System.out.println(request);
-        BookResponse response = bookService.generate(request);
+        StoryGenerationResponse response = storyGenerationService.generate(request);
         return ResponseEntity.ok(response);
     }
 }
