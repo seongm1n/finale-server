@@ -2,8 +2,8 @@ package com.finale.finale.book.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.finale.finale.book.dto.BookRequest;
-import com.finale.finale.book.dto.BookResponse;
+import com.finale.finale.book.dto.StoryGenerationRequest;
+import com.finale.finale.book.dto.StoryGenerationResponse;
 import com.finale.finale.book.dto.SentenceResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -15,11 +15,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class BookService {
+public class StoryGenerationService {
 
     private final ChatClient chatClient;
 
-    public BookResponse generate(BookRequest request) {
+    public StoryGenerationResponse generate(StoryGenerationRequest request) {
         String promptText = createPrompt(request);
 
         String response = chatClient.prompt()
@@ -28,7 +28,7 @@ public class BookService {
                 .content();
         List<SentenceResponse> sentence = parseResponse(response);
 
-        return new BookResponse(
+        return new StoryGenerationResponse(
                 1L,
                 extractTitle(response),
                 request.category(),
@@ -38,7 +38,7 @@ public class BookService {
         );
     }
 
-    private String createPrompt(BookRequest request) {
+    private String createPrompt(StoryGenerationRequest request) {
         String words = (request.recommendedWords() != null)
                 ? String.join(", ", request.recommendedWords())
                 : "adventure, mysterious, ancient";

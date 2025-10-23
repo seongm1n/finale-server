@@ -3,7 +3,7 @@ package com.finale.finale.book.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record BookResponse(
+public record StoryGenerationResponse(
         Long bookId,
         String title,
         String category,

@@ -63,6 +63,7 @@ Desktop.ini
 
 ### Spring Boot ###
 HELP.md
+CLAUDE.md
 application-local.properties
 application-dev.properties
 application-secret.properties
