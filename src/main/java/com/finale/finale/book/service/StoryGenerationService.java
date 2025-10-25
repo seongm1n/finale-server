@@ -2,6 +2,7 @@ package com.finale.finale.book.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.finale.finale.book.dto.QuizResponse;
 import com.finale.finale.book.dto.StoryGenerationRequest;
 import com.finale.finale.book.dto.StoryGenerationResponse;
 import com.finale.finale.book.dto.SentenceResponse;
@@ -26,14 +27,19 @@ public class StoryGenerationService {
                 .user(promptText)
                 .call()
                 .content();
-        List<SentenceResponse> sentence = parseResponse(response);
+
+        List<SentenceResponse> sentences = parseResponse(response);
+        int totalWords = calculateTotalWords(sentences);
+        List<QuizResponse> quizzes = parseQuizzes(response);
 
         return new StoryGenerationResponse(
                 1L,
                 extractTitle(response),
                 request.category(),
                 request.abilityScore(),
-                sentence,
+                totalWords,
+                sentences,
+                quizzes,
                 LocalDateTime.now()
         );
     }
@@ -41,23 +47,24 @@ public class StoryGenerationService {
     private String createPrompt(StoryGenerationRequest request) {
         String words = (request.recommendedWords() != null)
                 ? String.join(", ", request.recommendedWords())
-                : "adventure, mysterious, ancient";
+                : " ";
 
         return String.format("""
             Create an English story for language learners in %s category with Lexile score %d.
             Use these recommended words: %s
 
             CRITICAL REQUIREMENTS:
-            1. The story MUST be EXACTLY 600 words in total (count all English words)
+            1. The story MUST be between 450-550 words in total (count all English words)
             2. Create a creative and engaging title
             3. Divide the story into 4-5 paragraphs
             4. Each paragraph should contain multiple sentences
             5. Each sentence should be appropriate for Lexile %d reading level
             6. Number paragraphs sequentially (1, 2, 3, 4, 5)
             7. Each sentence must have Korean translation
+            8. Create EXACTLY 2 OX (True/False) quizzes in Korean based on the story content
 
-            WORD COUNT REQUIREMENT: The total English word count across ALL sentences MUST equal approximately 600 words.
-            This is MANDATORY. Do NOT generate fewer than 600 words.
+            WORD COUNT REQUIREMENT: The total English word count across ALL sentences MUST be between 450-550 words.
+            This is MANDATORY.
 
             IMPORTANT: Return ONLY valid JSON in this EXACT format (no markdown, no extra text):
             {
@@ -81,11 +88,22 @@ public class StoryGenerationService {
                         "english_text": "first sentence of paragraph 2",
                         "korean_text": "두 번째 단락의 첫 문장 한국어 번역"
                     }
+                ],
+                "quizzes": [
+                    {
+                        "question": "첫번째 퀴즈.",
+                        "correct_answer": true
+                    },
+                    {
+                        "question": "두번째 퀴즈.",
+                        "correct_answer": false
+                    }
                 ]
             }
 
-            REMINDER: Generate enough sentences to reach 600 total English words.
+            REMINDER: Generate enough sentences to reach 450-550 total English words.
             Make sure paragraphs are properly numbered (1, 2, 3, 4, 5).
+            Create EXACTLY 2 OX quizzes in Korean about the story.
             Return ONLY the JSON object, nothing else.
             """,
                 request.category(),
@@ -157,5 +175,45 @@ public class StoryGenerationService {
         }
 
         return cleaned.trim();
+    }
+
+    private List<QuizResponse> parseQuizzes(String response) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            String jsonResponse = extractJsonFromResponse(response);
+            JsonNode rootNode = objectMapper.readTree(jsonResponse);
+            JsonNode quizzesNode = rootNode.get("quizzes");
+
+            List<QuizResponse> quizzes = new ArrayList<>();
+
+            if (quizzesNode != null && quizzesNode.isArray()) {
+                long quizId = 1L;
+                for (JsonNode quizNode : quizzesNode) {
+                    QuizResponse quiz = new QuizResponse(
+                            quizId++,
+                            quizNode.get("question").asText(),
+                            quizNode.get("correct_answer").asBoolean()
+                    );
+                    quizzes.add(quiz);
+                }
+            }
+
+            return quizzes;
+        } catch (Exception e) {
+            System.err.println("Failed to parse quizzes: " + e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    private int calculateTotalWords(List<SentenceResponse> sentences) {
+        return sentences.stream()
+                .mapToInt(sentence -> {
+                    String englishText = sentence.englishText();
+                    if (englishText == null || englishText.isBlank()) {
+                        return 0;
+                    }
+                    return englishText.trim().split("\\s+").length;
+                })
+                .sum();
     }
 }

@@ -8,7 +8,9 @@ public record StoryGenerationResponse(
         String title,
         String category,
         int abilityScore,
+        int totalWordCount,
         List<SentenceResponse> sentences,
+        List<QuizResponse> quizzes,
         LocalDateTime createdAt
 ) {
 }
