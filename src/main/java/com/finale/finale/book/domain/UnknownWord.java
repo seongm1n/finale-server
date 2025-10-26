@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,32 +27,32 @@ public class UnknownWord {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "word", nullable = false)
+    @Column(nullable = false)
     private String word;
 
     @Column(name = "word_meaning", nullable = false)
     private String wordMeaning;
 
-    @Column(name = "sentence", nullable = false)
+    @Column(nullable = false)
     private String sentence;
 
     @Column(name = "sentence_meaning", nullable = false)
     private String sentenceMeaning;
 
-    @Column(name = "location", nullable = false)
-    private int location;
+    @Column(nullable = false)
+    private Integer location;
 
-    @Column(name = "length", nullable = false)
-    private int length;
+    @Column(nullable = false)
+    private Integer length;
 
     @Column(name = "next_review_date", nullable = false)
-    private LocalDateTime nextReviewDate;
+    private LocalDate nextReviewDate;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public UnknownWord(User user, Book book, String word, String wordMeaning, String sentence, String sentenceMeaning, int location, int length, LocalDateTime nextReviewDate) {
+    public UnknownWord(User user, Book book, String word, String wordMeaning, String sentence, String sentenceMeaning, int location, int length, LocalDate nextReviewDate) {
         this.user = user;
         this.book = book;
         this.word = word;
