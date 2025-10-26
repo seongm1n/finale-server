@@ -22,10 +22,10 @@ public class Sentence {
     private Book book;
 
     @Column(name = "paragraph_number", nullable = false)
-    private int paragraphNumber;
+    private Integer paragraphNumber;
 
     @Column(name = "sentence_order", nullable = false)
-    private int sentenceOrder;
+    private Integer sentenceOrder;
 
     @Column(name = "english_text", nullable = false)
     private String englishText;

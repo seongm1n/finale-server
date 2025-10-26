@@ -21,7 +21,7 @@ public class Quiz {
     @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
-    @Column(name = "question", nullable = false)
+    @Column(nullable = false)
     private String question;
 
     @Column(name = "correct_answer", nullable = false)
@@ -34,7 +34,7 @@ public class Quiz {
     private Boolean isSolved = false;
 
     @CreationTimestamp
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     public Quiz(Book book, String question, Boolean correctAnswer) {

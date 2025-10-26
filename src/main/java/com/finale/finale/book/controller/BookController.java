@@ -19,7 +19,6 @@ public class BookController {
 
     @PostMapping("/generate")
     public ResponseEntity<StoryGenerationResponse> generate(@RequestBody StoryGenerationRequest request) {
-        System.out.println(request);
         StoryGenerationResponse response = storyGenerationService.generate(request);
         return ResponseEntity.ok(response);
     }
