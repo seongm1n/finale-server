@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.dto.LoginRequest;
 import com.finale.finale.auth.dto.LoginResponse;
 import com.finale.finale.auth.dto.LogoutRequest;
@@ -41,26 +40,17 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponse> me(@AuthenticationPrincipal User user) {
-        UserResponse response = new UserResponse(
-            user.getId(),
-            user.getEmail(),
-            user.getNickname(),
-            user.getRole(),
-            user.getAbilityScore(),
-            user.getEffortScore(),
-            user.getBookReadCount(),
-            user.needsNickname()
-        );
+    public ResponseEntity<UserResponse> me(@AuthenticationPrincipal Long userId) {
+        UserResponse response = authService.getUserById(userId);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/nickname")
     public ResponseEntity<UserResponse> setNickname(
-        @AuthenticationPrincipal User user,
+        @AuthenticationPrincipal Long userId,
         @RequestBody NicknameRequest request
     ) {
-        UserResponse response = authService.setNickname(user, request.nickname());
+        UserResponse response = authService.setNickname(userId, request.nickname());
         return ResponseEntity.ok(response);
     }
 

@@ -76,7 +76,15 @@ public class AuthService {
         return new RefreshResponse(newAccessToken, newRefreshToken);
     }
 
-    public UserResponse setNickname(User user, String nickname) {
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new OAuth2AuthenticationException("user", "User not found"));
+        return toUserResponse(user);
+    }
+
+    public UserResponse setNickname(Long userId, String nickname) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new OAuth2AuthenticationException("user", "User not found"));
         user.setNickname(nickname);
         userRepository.save(user);
 
