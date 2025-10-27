@@ -2,14 +2,17 @@ package com.finale.finale.book.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.finale.finale.book.domain.UnknownWord;
 import com.finale.finale.book.dto.QuizResponse;
 import com.finale.finale.book.dto.StoryGenerationRequest;
 import com.finale.finale.book.dto.StoryGenerationResponse;
 import com.finale.finale.book.dto.SentenceResponse;
+import com.finale.finale.book.repository.UnknownWordRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,9 +22,15 @@ import java.util.List;
 public class StoryGenerationService {
 
     private final ChatClient chatClient;
+    private final UnknownWordRepository unknownWordRepository;
 
-    public StoryGenerationResponse generate(StoryGenerationRequest request) {
-        String promptText = createPrompt(request);
+    public StoryGenerationResponse generate(StoryGenerationRequest request, Long userId) {
+        List<UnknownWord> unknownWords = new ArrayList<>();
+        if (userId != null) {
+            unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
+        }
+
+        String promptText = createPrompt(request, unknownWords);
 
         String response = chatClient.prompt()
                 .user(promptText)
@@ -44,72 +53,56 @@ public class StoryGenerationService {
         );
     }
 
-    private String createPrompt(StoryGenerationRequest request) {
-        String words = (request.recommendedWords() != null)
-                ? String.join(", ", request.recommendedWords())
-                : " ";
+    private String createPrompt(StoryGenerationRequest request, List<UnknownWord> unknownWords) {
+        StringBuilder vocabSection = new StringBuilder();
+
+        if (request.recommendedWords() != null && !request.recommendedWords().isEmpty()) {
+            vocabSection.append("NEW WORDS: ").append(String.join(", ", request.recommendedWords()));
+        }
+
+        if (!unknownWords.isEmpty()) {
+            if (vocabSection.length() > 0) vocabSection.append("\n");
+            vocabSection.append("REVIEW WORDS (use these words naturally in the story):\n");
+            for (UnknownWord uw : unknownWords) {
+                vocabSection.append(String.format("- %s (example: \"%s\")\n", uw.getWord(), uw.getSentence()));
+            }
+        }
 
         return String.format("""
-            Create an English story for language learners in %s category with Lexile score %d.
-            Use these recommended words: %s
+            Create an English learning story.
 
-            CRITICAL REQUIREMENTS:
-            1. The story MUST be between 450-550 words in total (count all English words)
-            2. Create a creative and engaging title
-            3. Divide the story into 4-5 paragraphs
-            4. Each paragraph should contain multiple sentences
-            5. Each sentence should be appropriate for Lexile %d reading level
-            6. Number paragraphs sequentially (1, 2, 3, 4, 5)
-            7. Each sentence must have Korean translation
-            8. Create EXACTLY 2 OX (True/False) quizzes in Korean based on the story content
+            STORY SETTINGS:
+            - Category: %s
+            - Lexile Level: %dL
+            - Word Count: 950-1050 words (STRICTLY ENFORCE)
+            - Structure: Divide into appropriate paragraphs for natural story flow
 
-            WORD COUNT REQUIREMENT: The total English word count across ALL sentences MUST be between 450-550 words.
-            This is MANDATORY.
+            VOCABULARY TO INCLUDE:
+            %s
 
-            IMPORTANT: Return ONLY valid JSON in this EXACT format (no markdown, no extra text):
+            OUTPUT FORMAT (return ONLY valid JSON, no markdown):
             {
-                "title": "story title here",
+                "title": "Creative Story Title",
                 "sentences": [
-                    {
-                        "paragraph_number": 1,
-                        "sentence_order": 1,
-                        "english_text": "first sentence of paragraph 1",
-                        "korean_text": "첫 번째 단락의 첫 문장 한국어 번역"
-                    },
-                    {
-                        "paragraph_number": 1,
-                        "sentence_order": 2,
-                        "english_text": "second sentence of paragraph 1",
-                        "korean_text": "첫 번째 단락의 두 번째 문장 한국어 번역"
-                    },
-                    {
-                        "paragraph_number": 2,
-                        "sentence_order": 1,
-                        "english_text": "first sentence of paragraph 2",
-                        "korean_text": "두 번째 단락의 첫 문장 한국어 번역"
-                    }
+                    {"paragraph_number": 1, "sentence_order": 1, "english_text": "First sentence.", "korean_text": "첫 번째 문장."},
+                    {"paragraph_number": 1, "sentence_order": 2, "english_text": "Second sentence.", "korean_text": "두 번째 문장."}
                 ],
                 "quizzes": [
-                    {
-                        "question": "첫번째 퀴즈.",
-                        "correct_answer": true
-                    },
-                    {
-                        "question": "두번째 퀴즈.",
-                        "correct_answer": false
-                    }
+                    {"question": "스토리 내용에 관한 질문 1", "correct_answer": true},
+                    {"question": "스토리 내용에 관한 질문 2", "correct_answer": false}
                 ]
             }
 
-            REMINDER: Generate enough sentences to reach 450-550 total English words.
-            Make sure paragraphs are properly numbered (1, 2, 3, 4, 5).
-            Create EXACTLY 2 OX quizzes in Korean about the story.
-            Return ONLY the JSON object, nothing else.
+            REQUIREMENTS:
+            1. Total word count: 950-1050 English words
+            2. Paragraphs numbered sequentially from 1
+            3. Each sentence has accurate Korean translation
+            4. Create exactly 2 True/False quizzes in Korean
+            5. Return pure JSON only (no code blocks, no markdown)
             """,
                 request.category(),
                 request.abilityScore(),
-                words,
-                request.abilityScore()
+                vocabSection.toString().trim()
         );
     }
 
