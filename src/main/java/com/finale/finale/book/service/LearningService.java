@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional
 public class LearningService {
-    private static final int UNKNOWN_WORD_FIRST_REVIEW_DAYS = 3;
+    private static final int UNKNOWN_WORD_FIRST_REVIEW_DAYS = 0;
 
     private final UnknownWordRepository unknownWordRepository;
     private final QuizRepository quizRepository;
@@ -106,7 +106,7 @@ public class LearningService {
     }
 
     private static void validateBookCompletion(Long userId, Book book) {
-        if (!book.getUserId().equals(userId)) {
+        if (!book.getUser().getId().equals(userId)) {
             throw new RuntimeException("본인의 책만 완료할 수 있습니다");
         }
 

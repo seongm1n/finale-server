@@ -66,4 +66,8 @@ public class UnknownWord {
         this.length = length;
         this.nextReviewDate = nextReviewDate;
     }
+
+    public void nextReviewSetting() {
+        // TODO : 복습 알고리즘 적용
+    }
 }
