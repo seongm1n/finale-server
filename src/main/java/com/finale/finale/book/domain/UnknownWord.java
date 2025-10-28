@@ -45,6 +45,9 @@ public class UnknownWord {
     @Column(nullable = false)
     private Integer length;
 
+    @Column(name = "review_count", nullable = false)
+    private Integer reviewCount = 0;
+
     @Column(name = "next_review_date", nullable = false)
     private LocalDate nextReviewDate;
 
