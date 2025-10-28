@@ -2,12 +2,21 @@ package com.finale.finale.book.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.finale.finale.auth.domain.User;
+import com.finale.finale.auth.repository.UserRepository;
+import com.finale.finale.book.domain.Book;
+import com.finale.finale.book.domain.Quiz;
+import com.finale.finale.book.domain.Sentence;
 import com.finale.finale.book.domain.UnknownWord;
 import com.finale.finale.book.dto.response.QuizResponse;
 import com.finale.finale.book.dto.request.StoryGenerationRequest;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.dto.response.SentenceResponse;
+import com.finale.finale.book.repository.BookRepository;
+import com.finale.finale.book.repository.QuizRepository;
+import com.finale.finale.book.repository.SentenceRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
@@ -19,16 +28,19 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class StoryGenerationService {
 
     private final ChatClient chatClient;
     private final UnknownWordRepository unknownWordRepository;
+    private final UserRepository userRepository;
+    private final BookRepository bookRepository;
+    private final SentenceRepository sentenceRepository;
+    private final QuizRepository quizRepository;
 
     public StoryGenerationResponse generate(StoryGenerationRequest request, Long userId) {
-        List<UnknownWord> unknownWords = new ArrayList<>();
-        if (userId != null) {
-            unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
-        }
+        List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
+        unknownWords.forEach(UnknownWord::nextReviewSetting);
 
         String promptText = createPrompt(request, unknownWords);
 
@@ -41,16 +53,56 @@ public class StoryGenerationService {
         int totalWords = calculateTotalWords(sentences);
         List<QuizResponse> quizzes = parseQuizzes(response);
 
-        return new StoryGenerationResponse(
-                1L,
+        User user = userRepository.findById(userId)
+                        .orElseThrow(() -> new RuntimeException("User not found"));
+        Book book = new Book(
+                user,
                 extractTitle(response),
                 request.category(),
                 request.abilityScore(),
-                totalWords,
+                totalWords
+        );
+        bookRepository.save(book);
+
+        saveSentences(sentences, book);
+        saveQuizzes(quizzes, book);
+
+        return new StoryGenerationResponse(
+                book.getId(),
+                book.getTitle(),
+                book.getCategory(),
+                book.getAbilityScore(),
+                book.getTotalWordCount(),
                 sentences,
                 quizzes,
                 LocalDateTime.now()
         );
+    }
+
+    private void saveQuizzes(List<QuizResponse> quizzes, Book book) {
+        List<Quiz> quizEntities = quizzes.stream()
+                .map(quizResponse -> new Quiz(
+                        book,
+                        quizResponse.question(),
+                        quizResponse.correctAnswer()
+                ))
+                .toList();
+
+        quizRepository.saveAll(quizEntities);
+    }
+
+    private void saveSentences(List<SentenceResponse> sentences, Book book) {
+        List<Sentence> sentenceEntities = sentences.stream()
+                .map(sentenceResponse -> new Sentence(
+                        book,
+                        sentenceResponse.paragraphNumber(),
+                        sentenceResponse.sentenceOrder(),
+                        sentenceResponse.englishText(),
+                        sentenceResponse.koreanText()
+                ))
+                .toList();
+
+        sentenceRepository.saveAll(sentenceEntities);
     }
 
     private String createPrompt(StoryGenerationRequest request, List<UnknownWord> unknownWords) {

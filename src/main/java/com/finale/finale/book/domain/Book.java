@@ -1,5 +1,6 @@
 package com.finale.finale.book.domain;
 
+import com.finale.finale.auth.domain.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,9 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false, length = 255)
     private String title;
@@ -39,8 +41,8 @@ public class Book {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Book(Long userId, String title, String category, Integer abilityScore, Integer totalWordCount) {
-        this.userId = userId;
+    public Book(User user, String title, String category, Integer abilityScore, Integer totalWordCount) {
+        this.user = user;
         this.title = title;
         this.category = category;
         this.abilityScore = abilityScore;
