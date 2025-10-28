@@ -20,11 +20,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class LearningService {
+    private static final int UNKNOWN_WORD_FIRST_REVIEW_DAYS = 3;
 
     private final UnknownWordRepository unknownWordRepository;
     private final QuizRepository quizRepository;
@@ -38,9 +41,11 @@ public class LearningService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
 
+        validateBookCompletion(userId, book);
+
         List<QuizRequest> quizRequestList = request.quizAnswers();
-        int ansCount = checkQuizAnswer(quizRequestList);
-        saveQuiz(quizRequestList);
+        Map<Long, Quiz> quizMap = loadQuizMap(quizRequestList);
+        int ansCount = processQuizzes(quizRequestList, quizMap);
 
         List<UnknownWordRequest> unknownWordRequestList = request.unknownWords();
         int unknownWordCount = unknownWordRequestList.size();
@@ -86,6 +91,32 @@ public class LearningService {
         );
     }
 
+    private int processQuizzes(List<QuizRequest> quizRequestList, Map<Long, Quiz> quizMap) {
+        int ansCount = checkQuizAnswer(quizRequestList, quizMap);
+        saveQuiz(quizRequestList, quizMap);
+        return ansCount;
+    }
+
+    private Map<Long, Quiz> loadQuizMap(List<QuizRequest> quizRequestList) {
+        List<Long> quizIds = quizRequestList.stream()
+                .map(QuizRequest::quizId)
+                .toList();
+        List<Quiz> quizzes = quizRepository.findAllById(quizIds);
+        Map<Long, Quiz> quizMap = quizzes.stream()
+                .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
+        return quizMap;
+    }
+
+    private static void validateBookCompletion(Long userId, Book book) {
+        if (!book.getUserId().equals(userId)) {
+            throw new RuntimeException("본인의 책만 완료할 수 있습니다");
+        }
+
+        if (book.getIsCompleted()) {
+            throw new RuntimeException("이미 완료된 책입니다");
+        }
+    }
+
     private void changeUserInformation(User user, Book book, int ansCount, int unknownWordCount) {
         user.inclusionScore(ansCount, unknownWordCount);
         int count = sentenceRepository.countByBookId(book.getId());
@@ -95,20 +126,24 @@ public class LearningService {
         userRepository.save(user);
     }
 
-    private int checkQuizAnswer(List<QuizRequest> quizRequestList) {
+    private int checkQuizAnswer(List<QuizRequest> quizRequestList, Map<Long, Quiz> quizMap) {
         return (int) quizRequestList.stream()
                 .filter(quizRequest -> {
-                    Quiz quiz = quizRepository.findById(quizRequest.quizId())
-                            .orElseThrow(() -> new RuntimeException("Quiz not found"));
+                    Quiz quiz = quizMap.get(quizRequest.quizId());
+                    if (quiz == null) {
+                        throw new RuntimeException("Quiz not found");
+                    }
                     return quiz.getCorrectAnswer() == quizRequest.userAnswer();
                 })
                 .count();
     }
 
-    private void saveQuiz(List<QuizRequest> quizRequestList) {
+    private void saveQuiz(List<QuizRequest> quizRequestList, Map<Long, Quiz> quizMap) {
         for (QuizRequest quizRequest : quizRequestList) {
-            Quiz quiz = quizRepository.findById(quizRequest.quizId())
-                    .orElseThrow(() -> new RuntimeException("Quiz not found"));
+            Quiz quiz = quizMap.get(quizRequest.quizId());
+            if (quiz == null) {
+                throw new RuntimeException("Quiz not found");
+            }
             quiz.answerQuiz(quizRequest.userAnswer());
             quizRepository.save(quiz);
         }
@@ -125,7 +160,7 @@ public class LearningService {
                     unknownWordRequest.sentenceMeaning(),
                     unknownWordRequest.location(),
                     unknownWordRequest.length(),
-                    LocalDate.now().plusDays(3)
+                    LocalDate.now().plusDays(UNKNOWN_WORD_FIRST_REVIEW_DAYS)
                     );
             unknownWordRepository.save(unknownWord);
         }
