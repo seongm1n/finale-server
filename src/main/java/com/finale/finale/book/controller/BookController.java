@@ -1,15 +1,15 @@
 package com.finale.finale.book.controller;
 
-import com.finale.finale.book.dto.StoryGenerationRequest;
-import com.finale.finale.book.dto.StoryGenerationResponse;
+import com.finale.finale.book.dto.request.CompleteRequest;
+import com.finale.finale.book.dto.request.StoryGenerationRequest;
+import com.finale.finale.book.dto.response.CompleteResponse;
+import com.finale.finale.book.dto.response.StoryGenerationResponse;
+import com.finale.finale.book.service.LearningService;
 import com.finale.finale.book.service.StoryGenerationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/books")
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class BookController {
 
     private final StoryGenerationService storyGenerationService;
+    private final LearningService learningService;
 
     @PostMapping("/generate")
     public ResponseEntity<StoryGenerationResponse> generate(
@@ -24,6 +25,16 @@ public class BookController {
             @RequestBody StoryGenerationRequest request
     ) {
         StoryGenerationResponse response = storyGenerationService.generate(request, userId);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{bookId}/complete")
+    public ResponseEntity<CompleteResponse> complete(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long bookId,
+            @RequestBody CompleteRequest request
+    ) {
+        CompleteResponse response = learningService.complete(userId, bookId, request);
         return ResponseEntity.ok(response);
     }
 }

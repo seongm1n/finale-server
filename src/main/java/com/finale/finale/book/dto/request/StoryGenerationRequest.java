@@ -1,4 +1,4 @@
-package com.finale.finale.book.dto;
+package com.finale.finale.book.dto.request;
 
 import java.util.List;
 
