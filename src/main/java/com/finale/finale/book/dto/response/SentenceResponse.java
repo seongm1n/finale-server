@@ -1,4 +1,4 @@
-package com.finale.finale.book.dto;
+package com.finale.finale.book.dto.response;
 
 public record SentenceResponse(
         int paragraphNumber,

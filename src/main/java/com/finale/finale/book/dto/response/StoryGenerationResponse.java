@@ -1,4 +1,4 @@
-package com.finale.finale.book.dto;
+package com.finale.finale.book.dto.response;
 
 import java.time.LocalDateTime;
 import java.util.List;
