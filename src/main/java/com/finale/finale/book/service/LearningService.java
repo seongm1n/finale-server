@@ -6,8 +6,6 @@ import com.finale.finale.book.domain.Book;
 import com.finale.finale.book.domain.Quiz;
 import com.finale.finale.book.domain.UnknownWord;
 import com.finale.finale.book.dto.request.CompleteRequest;
-import com.finale.finale.book.dto.request.QuizRequest;
-import com.finale.finale.book.dto.request.UnknownWordRequest;
 import com.finale.finale.book.dto.response.CompleteResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
@@ -43,11 +41,11 @@ public class LearningService {
 
         validateBookCompletion(userId, book);
 
-        List<QuizRequest> quizRequestList = request.quizAnswers();
+        List<CompleteRequest.QuizAnswer> quizRequestList = request.quizAnswers();
         Map<Long, Quiz> quizMap = loadQuizMap(quizRequestList);
         int ansCount = processQuizzes(quizRequestList, quizMap);
 
-        List<UnknownWordRequest> unknownWordRequestList = request.unknownWords();
+        List<CompleteRequest.UnknownWord> unknownWordRequestList = request.unknownWords();
         int unknownWordCount = unknownWordRequestList.size();
         saveUnknownWord(user, book, unknownWordRequestList);
 
@@ -91,15 +89,15 @@ public class LearningService {
         );
     }
 
-    private int processQuizzes(List<QuizRequest> quizRequestList, Map<Long, Quiz> quizMap) {
+    private int processQuizzes(List<CompleteRequest.QuizAnswer> quizRequestList, Map<Long, Quiz> quizMap) {
         int ansCount = checkQuizAnswer(quizRequestList, quizMap);
         saveQuiz(quizRequestList, quizMap);
         return ansCount;
     }
 
-    private Map<Long, Quiz> loadQuizMap(List<QuizRequest> quizRequestList) {
+    private Map<Long, Quiz> loadQuizMap(List<CompleteRequest.QuizAnswer> quizRequestList) {
         List<Long> quizIds = quizRequestList.stream()
-                .map(QuizRequest::quizId)
+                .map(CompleteRequest.QuizAnswer::quizId)
                 .toList();
         List<Quiz> quizzes = quizRepository.findAllById(quizIds);
         Map<Long, Quiz> quizMap = quizzes.stream()
@@ -126,7 +124,7 @@ public class LearningService {
         userRepository.save(user);
     }
 
-    private int checkQuizAnswer(List<QuizRequest> quizRequestList, Map<Long, Quiz> quizMap) {
+    private int checkQuizAnswer(List<CompleteRequest.QuizAnswer> quizRequestList, Map<Long, Quiz> quizMap) {
         return (int) quizRequestList.stream()
                 .filter(quizRequest -> {
                     Quiz quiz = quizMap.get(quizRequest.quizId());
@@ -138,8 +136,8 @@ public class LearningService {
                 .count();
     }
 
-    private void saveQuiz(List<QuizRequest> quizRequestList, Map<Long, Quiz> quizMap) {
-        for (QuizRequest quizRequest : quizRequestList) {
+    private void saveQuiz(List<CompleteRequest.QuizAnswer> quizRequestList, Map<Long, Quiz> quizMap) {
+        for (CompleteRequest.QuizAnswer quizRequest : quizRequestList) {
             Quiz quiz = quizMap.get(quizRequest.quizId());
             if (quiz == null) {
                 throw new RuntimeException("Quiz not found");
@@ -149,8 +147,8 @@ public class LearningService {
         }
     }
 
-    private void saveUnknownWord(User user, Book book, List<UnknownWordRequest> unknownWordRequestList) {
-        for (UnknownWordRequest unknownWordRequest : unknownWordRequestList) {
+    private void saveUnknownWord(User user, Book book, List<CompleteRequest.UnknownWord> unknownWordRequestList) {
+        for (CompleteRequest.UnknownWord unknownWordRequest : unknownWordRequestList) {
             UnknownWord unknownWord = new UnknownWord(
                     user,
                     book,
