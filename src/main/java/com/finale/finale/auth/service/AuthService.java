@@ -123,7 +123,6 @@ public class AuthService {
             user.getNickname(),
             user.getRole(),
             user.getAbilityScore(),
-            user.getEffortScore(),
             user.getBookReadCount(),
             user.needsNickname()
         );

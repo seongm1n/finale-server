@@ -33,9 +33,6 @@ public class User {
     @Column(name = "ability_score", nullable = false)
     private Integer abilityScore = 0;
 
-    @Column(name = "effort_score", nullable = false)
-    private Integer effortScore = 0;
-
     @Column(name = "book_read_count", nullable = false)
     private Integer bookReadCount = 0;
 
@@ -64,6 +61,22 @@ public class User {
 
     public boolean needsNickname() {
         return this.nickname == null;
+    }
+
+    public void inclusionScore(int ansCount, int unknownWordCount) {
+        // TODO : 유저 실력 변동
+    }
+
+    public void addTotalSentences(int count) {
+        totalSentencesRead += count;
+    }
+
+    public void addUnknownWords(int count) {
+        unknownWordsCount += count;
+    }
+
+    public void increaseBookReadCount() {
+        this.bookReadCount += 1;
     }
 
     @PreUpdate

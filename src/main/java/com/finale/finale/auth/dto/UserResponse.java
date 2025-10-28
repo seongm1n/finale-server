@@ -8,7 +8,6 @@ public record UserResponse(
     String nickname,
     Role role,
     Integer abilityScore,
-    Integer effortScore,
     Integer bookReadCount,
     boolean needsNickname
 ) {
