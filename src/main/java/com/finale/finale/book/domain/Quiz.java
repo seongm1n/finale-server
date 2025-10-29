@@ -1,5 +1,7 @@
 package com.finale.finale.book.domain;
 
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -46,5 +48,11 @@ public class Quiz {
     public void answerQuiz(boolean answer) {
         this.userAnswer = answer;
         this.isSolved = true;
+    }
+
+    public void validateMatch(Book book) {
+        if (!this.book.equals(book)) {
+            throw new CustomException(ErrorCode.QUIZ_BOOK_MISMATCH);
+        }
     }
 }

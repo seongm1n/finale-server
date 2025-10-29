@@ -11,6 +11,8 @@ import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,15 +37,19 @@ public class LearningService {
 
     public CompleteResponse complete(Long userId, Long bookId, CompleteRequest request) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Book book = bookRepository.findById(bookId)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
-        validateBookCompletion(userId, book);
+        book.validateComplete(user);
 
         List<CompleteRequest.QuizAnswer> quizRequestList = request.quizAnswers();
         Map<Long, Quiz> quizMap = loadQuizMap(quizRequestList);
         int ansCount = processQuizzes(quizRequestList, quizMap);
+
+        for (Quiz quiz : quizMap.values()) {
+            quiz.validateMatch(book);
+        }
 
         List<CompleteRequest.UnknownWord> unknownWordRequestList = request.unknownWords();
         int unknownWordCount = unknownWordRequestList.size();
@@ -100,19 +106,8 @@ public class LearningService {
                 .map(CompleteRequest.QuizAnswer::quizId)
                 .toList();
         List<Quiz> quizzes = quizRepository.findAllById(quizIds);
-        Map<Long, Quiz> quizMap = quizzes.stream()
+        return quizzes.stream()
                 .collect(Collectors.toMap(Quiz::getId, quiz -> quiz));
-        return quizMap;
-    }
-
-    private static void validateBookCompletion(Long userId, Book book) {
-        if (!book.getUser().getId().equals(userId)) {
-            throw new RuntimeException("본인의 책만 완료할 수 있습니다");
-        }
-
-        if (book.getIsCompleted()) {
-            throw new RuntimeException("이미 완료된 책입니다");
-        }
     }
 
     private void changeUserInformation(User user, Book book, int ansCount, int unknownWordCount) {
@@ -130,7 +125,7 @@ public class LearningService {
                 .filter(quizRequest -> {
                     Quiz quiz = quizMap.get(quizRequest.quizId());
                     if (quiz == null) {
-                        throw new RuntimeException("Quiz not found");
+                        throw new CustomException(ErrorCode.QUIZ_NOT_FOUND);
                     }
                     return quiz.getCorrectAnswer() == quizRequest.userAnswer();
                 })
@@ -141,7 +136,7 @@ public class LearningService {
         for (CompleteRequest.QuizAnswer quizRequest : quizRequestList) {
             Quiz quiz = quizMap.get(quizRequest.quizId());
             if (quiz == null) {
-                throw new RuntimeException("Quiz not found");
+                throw new CustomException(ErrorCode.QUIZ_NOT_FOUND);
             }
             quiz.answerQuiz(quizRequest.userAnswer());
             quizRepository.save(quiz);
