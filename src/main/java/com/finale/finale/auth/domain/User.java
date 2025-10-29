@@ -1,5 +1,7 @@
 package com.finale.finale.auth.domain;
 
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +33,7 @@ public class User {
     private Role role = Role.USER;
 
     @Column(name = "ability_score", nullable = false)
-    private Integer abilityScore = 0;
+    private Integer abilityScore = 500;
 
     @Column(name = "book_read_count", nullable = false)
     private Integer bookReadCount = 0;
@@ -69,6 +71,13 @@ public class User {
         return this.nickname == null;
     }
 
+    public void initAbilityScore() {
+        if (this.abilityScore != 500) {
+            throw new CustomException(ErrorCode.ABILITY_ALREADY_INITIALIZED);
+        }
+        this.abilityScore = 500;
+    }
+
     public void inclusionScore(int incorrectAnswersCount, int unknownWordCount, int totalWordCount) {
         int maxLScore = 1000;
         int minLScore = 0;
@@ -103,20 +112,26 @@ public class User {
     }
 
     public void learningStatusToday(int sentencesCount) {
-        if (this.lastLearnDate.isEqual(LocalDate.now().minusDays(1))) {
-            this.continuosLearning += 1;
-            this.todayBooksReadCount = 1;
-            this.todaySentencesReadCount = sentencesCount;
-            this.lastLearnDate = LocalDate.now();
-        } else if (!this.lastLearnDate.isEqual(LocalDate.now())) {
-            this.continuosLearning = 1;
-            this.todayBooksReadCount = 1;
-            this.todaySentencesReadCount = sentencesCount;
-            this.lastLearnDate = LocalDate.now();
-        } else {
-            this.todayBooksReadCount++;
-            this.todaySentencesReadCount += sentencesCount;
+        LocalDate today = LocalDate.now();
+
+        if (lastLearnDate.isEqual(today)) {
+            todayBooksReadCount++;
+            todaySentencesReadCount += sentencesCount;
+            return;
         }
+
+        if (lastLearnDate.isEqual(today.minusDays(1))) {
+            continuosLearning++;
+            todayBooksReadCount = 1;
+            todaySentencesReadCount = sentencesCount;
+            lastLearnDate = today;
+            return;
+        }
+
+        continuosLearning = 1;
+        todayBooksReadCount = 1;
+        todaySentencesReadCount = sentencesCount;
+        lastLearnDate = today;
     }
 
     @PreUpdate

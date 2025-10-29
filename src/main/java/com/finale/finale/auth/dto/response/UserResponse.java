@@ -1,4 +1,4 @@
-package com.finale.finale.auth.dto;
+package com.finale.finale.auth.dto.response;
 
 import com.finale.finale.auth.domain.Role;
 

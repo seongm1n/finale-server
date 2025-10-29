@@ -16,6 +16,8 @@ import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
@@ -42,7 +44,10 @@ public class StoryGenerationService {
         List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
         unknownWords.forEach(UnknownWord::nextReviewSetting);
 
-        String promptText = createPrompt(request, unknownWords);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        String promptText = createPrompt(request, unknownWords, user);
 
         String response = chatClient.prompt()
                 .user(promptText)
@@ -53,8 +58,6 @@ public class StoryGenerationService {
         int totalWords = calculateTotalWords(sentences);
         List<QuizResponse> quizzes = parseQuizzes(response);
 
-        User user = userRepository.findById(userId)
-                        .orElseThrow(() -> new RuntimeException("User not found"));
         Book book = new Book(
                 user,
                 extractTitle(response),
@@ -105,7 +108,7 @@ public class StoryGenerationService {
         sentenceRepository.saveAll(sentenceEntities);
     }
 
-    private String createPrompt(StoryGenerationRequest request, List<UnknownWord> unknownWords) {
+    private String createPrompt(StoryGenerationRequest request, List<UnknownWord> unknownWords, User user) {
         StringBuilder vocabSection = new StringBuilder();
 
         if (request.recommendedWords() != null && !request.recommendedWords().isEmpty()) {
@@ -153,7 +156,7 @@ public class StoryGenerationService {
             5. Return pure JSON only (no code blocks, no markdown)
             """,
                 request.category(),
-                request.abilityScore(),
+                user.getAbilityScore(),
                 vocabSection.toString().trim()
         );
     }
@@ -183,8 +186,7 @@ public class StoryGenerationService {
 
             return sentences;
         } catch (Exception e) {
-            System.err.println("Failed to parse GPT response: " + e.getMessage());
-            return new ArrayList<>();
+            throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);
         }
     }
 
@@ -201,8 +203,7 @@ public class StoryGenerationService {
 
             return "Untitled Story";
         } catch (Exception e) {
-            System.err.println("Failed to extract title: " + e.getMessage());
-            return "Untitled Story";
+            throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);
         }
     }
 
@@ -245,8 +246,7 @@ public class StoryGenerationService {
 
             return quizzes;
         } catch (Exception e) {
-            System.err.println("Failed to parse quizzes: " + e.getMessage());
-            return new ArrayList<>();
+            throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);
         }
     }
 

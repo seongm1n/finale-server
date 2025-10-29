@@ -2,20 +2,22 @@ package com.finale.finale.auth.service;
 
 import java.time.LocalDateTime;
 
+import com.finale.finale.auth.dto.request.AbilityRequest;
+import com.finale.finale.auth.dto.request.LoginRequest;
+import com.finale.finale.auth.dto.request.RefreshRequest;
+import com.finale.finale.auth.dto.response.LoginResponse;
+import com.finale.finale.auth.dto.response.RefreshResponse;
+import com.finale.finale.auth.dto.response.UserResponse;
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.finale.finale.auth.config.JwtTokenProvider;
+import com.finale.finale.config.JwtTokenProvider;
 import com.finale.finale.auth.domain.OAuthProvider;
 import com.finale.finale.auth.domain.RefreshToken;
 import com.finale.finale.auth.domain.User;
-import com.finale.finale.auth.dto.LoginRequest;
-import com.finale.finale.auth.dto.LoginResponse;
-import com.finale.finale.auth.dto.RefreshRequest;
-import com.finale.finale.auth.dto.RefreshResponse;
-import com.finale.finale.auth.dto.UserResponse;
-import com.finale.finale.auth.oauth.OAuth2AuthenticationException;
 import com.finale.finale.auth.oauth.OAuth2UserInfo;
 import com.finale.finale.auth.oauth.OAuth2ValidatorFactory;
 import com.finale.finale.auth.repository.OAuthProviderRepository;
@@ -58,11 +60,11 @@ public class AuthService {
 
     public RefreshResponse refresh(RefreshRequest request) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(request.refreshToken())
-            .orElseThrow(() -> new OAuth2AuthenticationException("refresh", "Invalid refresh token"));
+            .orElseThrow(() -> new CustomException(ErrorCode.REFRESH_TOKEN_INVALID));
 
         if (refreshToken.isExpired()) {
             refreshTokenRepository.delete(refreshToken);
-            throw new OAuth2AuthenticationException("refresh", "Expired refresh token");
+            throw new CustomException(ErrorCode.REFRESH_TOKEN_EXPIRED);
         }
 
         User user = refreshToken.getUser();
@@ -78,13 +80,13 @@ public class AuthService {
 
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new OAuth2AuthenticationException("user", "User not found"));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         return toUserResponse(user);
     }
 
     public UserResponse setNickname(Long userId, String nickname) {
         User user = userRepository.findById(userId)
-            .orElseThrow(() -> new OAuth2AuthenticationException("user", "User not found"));
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.setNickname(nickname);
         userRepository.save(user);
 
@@ -94,6 +96,15 @@ public class AuthService {
     public void logout(String token) {
         refreshTokenRepository.findByToken(token)
             .ifPresent(refreshTokenRepository::delete);
+    }
+
+    public UserResponse setAbility(Long userId, AbilityRequest request) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        user.initAbilityScore();
+        userRepository.save(user);
+
+        return toUserResponse(user);
     }
 
     private User createNewUser(OAuth2UserInfo oauth2UserInfo) {

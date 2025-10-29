@@ -1,6 +1,8 @@
 package com.finale.finale.book.domain;
 
 import com.finale.finale.auth.domain.User;
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -51,5 +53,14 @@ public class Book {
 
     public void markAsCompleted() {
         this.isCompleted = true;
+    }
+
+    public void validateComplete(User user) {
+        if (this.user.equals(user)) {
+            throw new CustomException(ErrorCode.BOOK_USER_MISMATCH);
+        }
+        if (isCompleted) {
+            throw new CustomException(ErrorCode.BOOK_ALREADY_COMPLETED);
+        }
     }
 }

@@ -1,4 +1,4 @@
-package com.finale.finale.auth.dto;
+package com.finale.finale.auth.dto.response;
 
 public record LoginResponse(
     String accessToken,
