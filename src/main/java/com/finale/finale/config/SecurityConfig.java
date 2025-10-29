@@ -1,4 +1,4 @@
-package com.finale.finale.auth.config;
+package com.finale.finale.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
