@@ -68,6 +68,19 @@ public class UnknownWord {
     }
 
     public void nextReviewSetting() {
-        // TODO : 복습 알고리즘 적용
+        int[] intervals = {1, 3, 7, 14, 30, 75, 188, 469, 1173, 2933};
+        java.util.Random random = new java.util.Random();
+
+        int index = Math.max(0, reviewCount);
+        int safeIndex = Math.min(index, intervals.length - 1);
+
+        int base = intervals[safeIndex];
+        int range = (int) Math.round(base * 0.1);
+        int offset = range > 0 ? random.nextInt(2 * range + 1) - range : 0;
+
+        int days = Math.max(base + offset, 0);
+
+        this.nextReviewDate = LocalDate.now().plusDays(days);
+        this.reviewCount = reviewCount + 1;
     }
 }
