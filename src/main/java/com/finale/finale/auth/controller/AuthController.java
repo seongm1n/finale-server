@@ -1,5 +1,10 @@
 package com.finale.finale.auth.controller;
 
+import com.finale.finale.auth.dto.request.*;
+import com.finale.finale.auth.dto.response.LoginResponse;
+import com.finale.finale.auth.dto.response.LogoutResponse;
+import com.finale.finale.auth.dto.response.RefreshResponse;
+import com.finale.finale.auth.dto.response.UserResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,14 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.finale.finale.auth.dto.LoginRequest;
-import com.finale.finale.auth.dto.LoginResponse;
-import com.finale.finale.auth.dto.LogoutRequest;
-import com.finale.finale.auth.dto.LogoutResponse;
-import com.finale.finale.auth.dto.NicknameRequest;
-import com.finale.finale.auth.dto.RefreshRequest;
-import com.finale.finale.auth.dto.RefreshResponse;
-import com.finale.finale.auth.dto.UserResponse;
 import com.finale.finale.auth.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
@@ -58,5 +55,14 @@ public class AuthController {
     public ResponseEntity<LogoutResponse> logout(@RequestBody LogoutRequest request) {
         authService.logout(request.refreshToken());
         return ResponseEntity.ok(new LogoutResponse("로그아웃되었습니다"));
+    }
+
+    @PostMapping("/ability")
+    public ResponseEntity<UserResponse> setAbility(
+            @AuthenticationPrincipal Long userId,
+            @RequestBody AbilityRequest request
+    ) {
+        UserResponse response = authService.setAbility(userId, request);
+        return ResponseEntity.ok(response);
     }
 }
