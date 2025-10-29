@@ -63,8 +63,25 @@ public class User {
         return this.nickname == null;
     }
 
-    public void inclusionScore(int ansCount, int unknownWordCount, int totalWordCount) {
-        // TODO : 유저 실력 변동
+    public void inclusionScore(int incorrectAnswersCount, int unknownWordCount, int totalWordCount) {
+        int maxLScore = 1000;
+        int minLScore = 0;
+
+        double targetUnknownWordsRate = 0.03;
+        double plusNormalizationFactor = 9.0;
+        double minusNormalizationFactor = 49.0;
+        double minusMaxRate = 0.10;
+        double changeStep = 50.0;
+
+        double rate = (totalWordCount > 0) ? ((double) unknownWordCount / (double) totalWordCount) * (1.0 + (double) incorrectAnswersCount) : 0.0;
+        double adjusted = Math.min(rate, minusMaxRate);
+        double deviation = (adjusted - targetUnknownWordsRate) * 100.0;
+        double normalizedSq = (deviation >= 0.0)
+                ? -(deviation * deviation / minusNormalizationFactor)
+                :  (deviation * deviation / plusNormalizationFactor);
+
+        int next = (int) Math.round(this.abilityScore + changeStep * normalizedSq);
+        this.abilityScore = Math.min(maxLScore, Math.max(minLScore, next));
     }
 
     public void addTotalSentences(int count) {
