@@ -56,7 +56,7 @@ public class Book {
     }
 
     public void validateComplete(User user) {
-        if (this.user.equals(user)) {
+        if (!this.user.equals(user)) {
             throw new CustomException(ErrorCode.BOOK_USER_MISMATCH);
         }
         if (isCompleted) {
