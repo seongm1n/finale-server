@@ -52,7 +52,7 @@ public class User {
     private Integer continuosLearning = 0;
 
     @Column(name = "last_learn_date", nullable = false)
-    private LocalDate lastLearnDate = LocalDate.now();
+    private LocalDate lastLearnDate = LocalDate.now().minusDays(1);
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
