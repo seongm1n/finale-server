@@ -50,8 +50,8 @@ public class LearningService {
         saveUnknownWord(user, book, unknownWordRequestList);
 
         int beforeAbilityScore = user.getAbilityScore();
-        int beforeTotalSentencesRead = user.getTotalSentencesRead();
-        int beforeUnknownWordsCount = user.getUnknownWordsCount();
+        int beforeTodaySentencesRead = user.getTotalSentencesRead();
+        int beforeContinuousLearning = user.getContinuosLearning();
         changeUserInformation(user, book, ansCount, unknownWordCount);
         book.markAsCompleted();
         bookRepository.save(book);
@@ -71,19 +71,19 @@ public class LearningService {
                                 user.getAbilityScore() - beforeAbilityScore
                         ),
                         new CompleteResponse.StatChange(
-                                user.getBookReadCount() - 1,
-                                user.getBookReadCount(),
+                                user.getTodayBooksReadCount() - 1,
+                                user.getTodayBooksReadCount(),
                                 1
                         ),
                         new CompleteResponse.StatChange(
-                                beforeTotalSentencesRead,
-                                user.getTotalSentencesRead(),
-                                user.getTotalSentencesRead() - beforeTotalSentencesRead
+                                beforeTodaySentencesRead,
+                                user.getTodaySentencesReadCount(),
+                                user.getTodaySentencesReadCount() - beforeTodaySentencesRead
                         ),
                         new CompleteResponse.StatChange(
-                                beforeUnknownWordsCount,
-                                user.getUnknownWordsCount(),
-                                user.getUnknownWordsCount() - beforeUnknownWordsCount
+                                beforeContinuousLearning,
+                                user.getContinuosLearning(),
+                                user.getContinuosLearning() - beforeContinuousLearning
                         )
                 )
         );
@@ -118,6 +118,7 @@ public class LearningService {
     private void changeUserInformation(User user, Book book, int ansCount, int unknownWordCount) {
         user.inclusionScore(ansCount, unknownWordCount, book.getTotalWordCount());
         int count = sentenceRepository.countByBookId(book.getId());
+        user.learningStatusToday(count);
         user.increaseBookReadCount();
         user.addTotalSentences(count);
         user.addUnknownWords(unknownWordCount);

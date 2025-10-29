@@ -16,9 +16,9 @@ public record CompleteResponse(
 
     public record StatsChange(
             StatChange abilityScore,
-            StatChange bookReadCount,
-            StatChange totalSentencesRead,
-            StatChange unknownWordsCount
+            StatChange todayBookReadCount,
+            StatChange todaySentencesRead,
+            StatChange continuousLearning
     ) {}
 
     public record StatChange(

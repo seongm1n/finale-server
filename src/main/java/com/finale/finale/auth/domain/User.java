@@ -42,11 +42,17 @@ public class User {
     @Column(name = "unknown_words_count", nullable = false)
     private Integer unknownWordsCount = 0;
 
-    @Column(name = "today_books_created_count", nullable = false)
-    private Integer todayBooksCreatedCount = 0;
+    @Column(name = "today_books_read_count", nullable = false)
+    private Integer todayBooksReadCount = 0;
 
-    @Column(name = "last_book_created_date")
-    private LocalDate lastBookCreatedDate;
+    @Column(name = "today_sentences_read_count", nullable = false)
+    private Integer todaySentencesReadCount = 0;
+
+    @Column(name = "continuos_learning", nullable = false)
+    private Integer continuosLearning = 0;
+
+    @Column(name = "last_learn_date", nullable = false)
+    private LocalDate lastLearnDate = LocalDate.now();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -94,6 +100,23 @@ public class User {
 
     public void increaseBookReadCount() {
         this.bookReadCount += 1;
+    }
+
+    public void learningStatusToday(int sentencesCount) {
+        if (this.lastLearnDate.isEqual(LocalDate.now().minusDays(1))) {
+            this.continuosLearning += 1;
+            this.todayBooksReadCount = 1;
+            this.todaySentencesReadCount = sentencesCount;
+            this.lastLearnDate = LocalDate.now();
+        } else if (!this.lastLearnDate.isEqual(LocalDate.now())) {
+            this.continuosLearning = 1;
+            this.todayBooksReadCount = 1;
+            this.todaySentencesReadCount = sentencesCount;
+            this.lastLearnDate = LocalDate.now();
+        } else {
+            this.todayBooksReadCount++;
+            this.todaySentencesReadCount += sentencesCount;
+        }
     }
 
     @PreUpdate
