@@ -63,7 +63,7 @@ public class User {
         return this.nickname == null;
     }
 
-    public void inclusionScore(int ansCount, int unknownWordCount) {
+    public void inclusionScore(int ansCount, int unknownWordCount, int totalWordCount) {
         // TODO : 유저 실력 변동
     }
 

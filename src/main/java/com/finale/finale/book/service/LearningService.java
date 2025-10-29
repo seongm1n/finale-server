@@ -116,7 +116,7 @@ public class LearningService {
     }
 
     private void changeUserInformation(User user, Book book, int ansCount, int unknownWordCount) {
-        user.inclusionScore(ansCount, unknownWordCount);
+        user.inclusionScore(ansCount, unknownWordCount, book.getTotalWordCount());
         int count = sentenceRepository.countByBookId(book.getId());
         user.increaseBookReadCount();
         user.addTotalSentences(count);
