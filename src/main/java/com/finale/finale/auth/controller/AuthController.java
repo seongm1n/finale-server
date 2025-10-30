@@ -17,6 +17,8 @@ import com.finale.finale.auth.service.AuthService;
 
 import lombok.RequiredArgsConstructor;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -25,13 +27,13 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
         LoginResponse response = authService.login(request);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<RefreshResponse> refresh(@RequestBody RefreshRequest request) {
+    public ResponseEntity<RefreshResponse> refresh(@Valid @RequestBody RefreshRequest request) {
         RefreshResponse response = authService.refresh(request);
         return ResponseEntity.ok(response);
     }
@@ -44,21 +46,23 @@ public class AuthController {
 
     @PostMapping("/nickname")
     public ResponseEntity<UserResponse> setNickname(
-        @AuthenticationPrincipal Long userId,
-        @RequestBody NicknameRequest request
+            @Valid
+            @AuthenticationPrincipal Long userId,
+            @RequestBody NicknameRequest request
     ) {
         UserResponse response = authService.setNickname(userId, request.nickname());
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponse> logout(@RequestBody LogoutRequest request) {
+    public ResponseEntity<LogoutResponse> logout(@Valid @RequestBody LogoutRequest request) {
         authService.logout(request.refreshToken());
         return ResponseEntity.ok(new LogoutResponse("로그아웃되었습니다"));
     }
 
     @PostMapping("/ability")
     public ResponseEntity<UserResponse> setAbility(
+            @Valid
             @AuthenticationPrincipal Long userId,
             @RequestBody AbilityRequest request
     ) {

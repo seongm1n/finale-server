@@ -56,7 +56,6 @@ public class StoryGenerationService {
 
         List<SentenceResponse> sentences = parseResponse(response);
         int totalWords = calculateTotalWords(sentences);
-        List<QuizResponse> quizzes = parseQuizzes(response);
 
         Book book = new Book(
                 user,
@@ -66,6 +65,8 @@ public class StoryGenerationService {
                 totalWords
         );
         bookRepository.save(book);
+
+        List<QuizResponse> quizzes = parseQuizzes(response, book);
 
         saveSentences(sentences, book);
         saveQuizzes(quizzes, book);
@@ -116,7 +117,7 @@ public class StoryGenerationService {
         }
 
         if (!unknownWords.isEmpty()) {
-            if (vocabSection.length() > 0) vocabSection.append("\n");
+            if (!vocabSection.isEmpty()) vocabSection.append("\n");
             vocabSection.append("REVIEW WORDS (use these words naturally in the story):\n");
             for (UnknownWord uw : unknownWords) {
                 vocabSection.append(String.format("- %s (example: \"%s\")\n", uw.getWord(), uw.getSentence()));
@@ -223,7 +224,7 @@ public class StoryGenerationService {
         return cleaned.trim();
     }
 
-    private List<QuizResponse> parseQuizzes(String response) {
+    private List<QuizResponse> parseQuizzes(String response, Book book) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
@@ -233,17 +234,21 @@ public class StoryGenerationService {
             List<QuizResponse> quizzes = new ArrayList<>();
 
             if (quizzesNode != null && quizzesNode.isArray()) {
-                long quizId = 1L;
                 for (JsonNode quizNode : quizzesNode) {
-                    QuizResponse quiz = new QuizResponse(
-                            quizId++,
+                    Quiz quiz = new Quiz(
+                            book,
                             quizNode.get("question").asText(),
                             quizNode.get("correct_answer").asBoolean()
                     );
-                    quizzes.add(quiz);
+                    quizRepository.save(quiz);
+                    QuizResponse quizResponse = new QuizResponse(
+                            quiz.getId(),
+                            quiz.getQuestion(),
+                            quiz.getCorrectAnswer()
+                    );
+                    quizzes.add(quizResponse);
                 }
             }
-
             return quizzes;
         } catch (Exception e) {
             throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);

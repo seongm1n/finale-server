@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ public class BookController {
 
     @PostMapping("/generate")
     public ResponseEntity<StoryGenerationResponse> generate(
+            @Valid
             @AuthenticationPrincipal Long userId,
             @RequestBody StoryGenerationRequest request
     ) {
@@ -30,6 +33,7 @@ public class BookController {
 
     @PostMapping("/{bookId}/complete")
     public ResponseEntity<CompleteResponse> complete(
+            @Valid
             @AuthenticationPrincipal Long userId,
             @PathVariable Long bookId,
             @RequestBody CompleteRequest request
