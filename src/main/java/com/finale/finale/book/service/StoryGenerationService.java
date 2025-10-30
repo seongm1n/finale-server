@@ -61,7 +61,7 @@ public class StoryGenerationService {
                 user,
                 extractTitle(response),
                 request.category(),
-                request.abilityScore(),
+                user.getAbilityScore(),
                 totalWords
         );
         bookRepository.save(book);

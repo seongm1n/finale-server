@@ -59,6 +59,9 @@ public class LearningService {
         int beforeTodaySentencesRead = user.getTotalSentencesRead();
         int beforeContinuousLearning = user.getContinuosLearning();
         changeUserInformation(user, book, ansCount, unknownWordCount);
+        if (user.getTodayBooksReadCount() == 1) {
+            beforeTodaySentencesRead = 0;
+        }
         book.markAsCompleted();
         bookRepository.save(book);
 
