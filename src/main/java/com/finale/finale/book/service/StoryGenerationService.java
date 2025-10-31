@@ -144,8 +144,8 @@ public class StoryGenerationService {
                     {"paragraph_number": 1, "sentence_order": 2, "english_text": "Second sentence.", "korean_text": "두 번째 문장."}
                 ],
                 "quizzes": [
-                    {"question": "스토리 내용에 관한 질문 1", "correct_answer": true},
-                    {"question": "스토리 내용에 관한 질문 2", "correct_answer": false}
+                    {"question": "스토리 내용에 관한 질문 1", "correct_answer": false},
+                    {"question": "스토리 내용에 관한 질문 2", "correct_answer": true}
                 ]
             }
 
@@ -154,7 +154,8 @@ public class StoryGenerationService {
             2. Paragraphs numbered sequentially from 1
             3. Each sentence has accurate Korean translation
             4. Create exactly 2 True/False quizzes in Korean
-            5. Return pure JSON only (no code blocks, no markdown)
+            5. IMPORTANT: Randomize the order of correct answers (don't always put true first or false first)
+            6. Return pure JSON only (no code blocks, no markdown)
             """,
                 request.category(),
                 user.getAbilityScore(),
