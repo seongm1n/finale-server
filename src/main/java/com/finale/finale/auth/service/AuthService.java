@@ -75,7 +75,11 @@ public class AuthService {
         refreshTokenRepository.delete(refreshToken);
         saveRefreshToken(user, newRefreshToken);
 
-        return new RefreshResponse(newAccessToken, newRefreshToken);
+        return new RefreshResponse(
+                newAccessToken,
+                newRefreshToken,
+                toUserResponse(user)
+                );
     }
 
     public UserResponse getUserById(Long userId) {
