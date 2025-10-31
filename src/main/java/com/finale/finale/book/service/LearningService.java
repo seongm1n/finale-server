@@ -56,7 +56,7 @@ public class LearningService {
         saveUnknownWord(user, book, unknownWordRequestList);
 
         int beforeAbilityScore = user.getAbilityScore();
-        int beforeTodaySentencesRead = user.getTotalSentencesRead();
+        int beforeTodaySentencesRead = user.getTodaySentencesReadCount();
         int beforeContinuousLearning = user.getContinuosLearning();
         changeUserInformation(user, book, ansCount, unknownWordCount);
         if (user.getTodayBooksReadCount() == 1) {

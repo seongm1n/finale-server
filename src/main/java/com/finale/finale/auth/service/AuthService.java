@@ -101,7 +101,7 @@ public class AuthService {
     public UserResponse setAbility(Long userId, AbilityRequest request) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        user.initAbilityScore();
+        user.initAbilityScore(request.abilityScore());
         userRepository.save(user);
 
         return toUserResponse(user);

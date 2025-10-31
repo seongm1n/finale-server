@@ -71,11 +71,11 @@ public class User {
         return this.nickname == null;
     }
 
-    public void initAbilityScore() {
+    public void initAbilityScore(int abilityScore) {
         if (this.abilityScore != 500) {
             throw new CustomException(ErrorCode.ABILITY_ALREADY_INITIALIZED);
         }
-        this.abilityScore = 500;
+        this.abilityScore = abilityScore;
     }
 
     public void inclusionScore(int incorrectAnswersCount, int unknownWordCount, int totalWordCount) {
