@@ -65,7 +65,6 @@ Desktop.ini
 HELP.md
 CLAUDE.md
 application-local.properties
-application-dev.properties
 application-secret.properties
 api-keys.properties
 
