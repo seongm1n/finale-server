@@ -27,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -110,6 +111,10 @@ public class StoryGenerationService {
     }
 
     private String createPrompt(StoryGenerationRequest request, List<UnknownWord> unknownWords, User user) {
+        Random random = new Random();
+        boolean quiz1Answer = random.nextBoolean();
+        boolean quiz2Answer = random.nextBoolean();
+
         StringBuilder vocabSection = new StringBuilder();
 
         if (request.recommendedWords() != null && !request.recommendedWords().isEmpty()) {
@@ -119,8 +124,11 @@ public class StoryGenerationService {
         if (!unknownWords.isEmpty()) {
             if (!vocabSection.isEmpty()) vocabSection.append("\n");
             vocabSection.append("REVIEW WORDS (use these words naturally in the story):\n");
+            vocabSection.append("IMPORTANT: The example sentences below are for REFERENCE ONLY. ");
+            vocabSection.append("You MUST create completely DIFFERENT sentences with creative and varied contexts. ");
+            vocabSection.append("DO NOT copy or closely imitate the example sentences.\n\n");
             for (UnknownWord uw : unknownWords) {
-                vocabSection.append(String.format("- %s (example: \"%s\")\n", uw.getWord(), uw.getSentence()));
+                vocabSection.append(String.format("- %s (reference example: \"%s\")\n", uw.getWord(), uw.getSentence()));
             }
         }
 
@@ -144,8 +152,8 @@ public class StoryGenerationService {
                     {"paragraph_number": 1, "sentence_order": 2, "english_text": "Second sentence.", "korean_text": "두 번째 문장."}
                 ],
                 "quizzes": [
-                    {"question": "스토리 내용에 관한 질문 1", "correct_answer": false},
-                    {"question": "스토리 내용에 관한 질문 2", "correct_answer": true}
+                    {"question": "스토리 내용에 관한 질문 1", "correct_answer": %b},
+                    {"question": "스토리 내용에 관한 질문 2", "correct_answer": %b}
                 ]
             }
 
@@ -154,12 +162,17 @@ public class StoryGenerationService {
             2. Paragraphs numbered sequentially from 1
             3. Each sentence has accurate Korean translation
             4. Create exactly 2 True/False quizzes in Korean
-            5. IMPORTANT: Randomize the order of correct answers (don't always put true first or false first)
-            6. Return pure JSON only (no code blocks, no markdown)
+            5. CRITICAL: Quiz 1 correct answer MUST be %b, Quiz 2 correct answer MUST be %b
+            6. Create questions that match the given answers based on story content
+            7. Return pure JSON only (no code blocks, no markdown)
             """,
                 request.category(),
                 (int) (user.getAbilityScore() * 1.4),
-                vocabSection.toString().trim()
+                vocabSection.toString().trim(),
+                quiz1Answer,
+                quiz2Answer,
+                quiz1Answer,
+                quiz2Answer
         );
     }
 
