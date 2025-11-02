@@ -39,6 +39,9 @@ public class Book {
     @Column(name = "is_completed", nullable = false)
     private Boolean isCompleted = false;
 
+    @Column(name = "is_provision", nullable = false)
+    private Boolean isProvision = true;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
