@@ -87,7 +87,7 @@ public class User {
         double minusNormalizationFactor = 49.0;
         double minusMaxRate = 0.10;
         double changeStep = 100.0;
-        double rate = (totalWordCount > 0) ? ((double) unknownWordCount / ((double) totalWordCount + ((double) incorrectAnswersCount * 3))) : 0.0;
+        double rate = (totalWordCount > 0) ? ( ((double) unknownWordCount + (double) incorrectAnswersCount * 3) / (double) totalWordCount) : 0.0;
         double adjusted = Math.min(rate, minusMaxRate);
         double deviation = (adjusted - targetUnknownWordsRate) * 100.0;
         double normalizedSq = (deviation >= 0.0)
