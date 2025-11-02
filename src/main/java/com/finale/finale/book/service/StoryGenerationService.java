@@ -158,7 +158,7 @@ public class StoryGenerationService {
             6. Return pure JSON only (no code blocks, no markdown)
             """,
                 request.category(),
-                user.getAbilityScore(),
+                (int) (user.getAbilityScore() * 1.4),
                 vocabSection.toString().trim()
         );
     }
