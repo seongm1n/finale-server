@@ -45,11 +45,3 @@ jobs:
           name: test-reports
           path: build/reports/tests/test/
           retention-days: 7
-
-      - name: Comment test results on PR
-        uses: daun/test-results-reporter@v1
-        if: always() && github.event_name == 'pull_request'
-        with:
-          name: Test Results
-          path: build/test-results/**/*.xml
-          reporter: java-junit
