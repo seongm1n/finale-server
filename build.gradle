@@ -32,6 +32,7 @@ dependencies {
 
 	// Database
 	implementation 'com.mysql:mysql-connector-j:8.3.0'
+	testImplementation 'com.h2database:h2'
 
 	// Database Migration
 	implementation 'org.flywaydb:flyway-core'

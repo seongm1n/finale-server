@@ -15,11 +15,6 @@ import javax.crypto.SecretKey;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@TestPropertySource(properties = {
-        "jwt.secret=test-secret-key-for-junit-testing-purpose-at-least-32-characters-long",
-        "jwt.access-token-expiration=3600000",
-        "jwt.refresh-token-expiration=86400000"
-})
 @DisplayName("JWT 토큰 제공자 테스트")
 class JwtTokenProviderTest {
 
