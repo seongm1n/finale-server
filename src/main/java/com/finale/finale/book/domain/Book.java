@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "books")
@@ -43,6 +45,14 @@ public class Book {
     @Column(name = "is_provision", nullable = false)
     private Boolean isProvision = false;
 
+    @ManyToMany
+    @JoinTable(
+            name = "book_review_words",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "unknown_word_id")
+    )
+    private List<UnknownWord> reviewWords = new ArrayList<>();
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -70,5 +80,9 @@ public class Book {
 
     public void markAsProvision() {
         this.isProvision = true;
+    }
+
+    public void addReviewWord(List<UnknownWord> unknownWords) {
+        this.reviewWords.addAll(unknownWords);
     }
 }

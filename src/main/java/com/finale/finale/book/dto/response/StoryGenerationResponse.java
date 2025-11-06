@@ -11,6 +11,7 @@ public record StoryGenerationResponse(
         int totalWordCount,
         List<SentenceResponse> sentences,
         List<QuizResponse> quizzes,
+        List<UnknownWordResponse> unknownWordList,
         LocalDateTime createdAt
 ) {
 }

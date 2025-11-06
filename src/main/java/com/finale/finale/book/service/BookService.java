@@ -6,6 +6,7 @@ import com.finale.finale.book.domain.Book;
 import com.finale.finale.book.dto.response.QuizResponse;
 import com.finale.finale.book.dto.response.SentenceResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
+import com.finale.finale.book.dto.response.UnknownWordResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
@@ -31,8 +32,9 @@ public class BookService {
         // TODO : 비관적 락 구현 고려
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Book book = bookRepository.findFirstByUserAndIsProvisionFalseOrderByCreatedAtAsc(user)
+        Book book = bookRepository.findFirstByUserAndIsProvisionFalseWithReviewWords(user)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_READY));
+
         List<SentenceResponse> sentences = sentenceRepository.findAllByBook(book).stream()
                 .map(sentence -> new SentenceResponse(
                         sentence.getParagraphNumber(),
@@ -41,11 +43,21 @@ public class BookService {
                         sentence.getKoreanText()
                 ))
                 .toList();
+
         List<QuizResponse> quizzes = quizRepository.findAllByBook(book).stream()
                 .map(quiz -> new QuizResponse(
                         quiz.getId(),
                         quiz.getQuestion(),
                         quiz.getCorrectAnswer()
+                ))
+                .toList();
+
+        List<UnknownWordResponse> unknownWords = book.getReviewWords().stream()
+                .map(unknownWord -> new UnknownWordResponse(
+                        unknownWord.getWord(),
+                        unknownWord.getWordMeaning(),
+                        unknownWord.getSentence(),
+                        unknownWord.getSentenceMeaning()
                 ))
                 .toList();
 
@@ -58,6 +70,7 @@ public class BookService {
                 book.getTotalWordCount(),
                 sentences,
                 quizzes,
+                unknownWords,
                 book.getCreatedAt()
         );
     }

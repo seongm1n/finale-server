@@ -8,6 +8,7 @@ import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
@@ -52,7 +53,7 @@ class BookServiceTest {
         Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 800, 1000);
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(bookRepository.findFirstByUserAndIsProvisionFalseOrderByCreatedAtAsc(user))
+        given(bookRepository.findFirstByUserAndIsProvisionFalseWithReviewWords(user))
                 .willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of());
         given(quizRepository.findAllByBook(book)).willReturn(List.of());
@@ -73,7 +74,7 @@ class BookServiceTest {
         User user = new User("test@example.com");
 
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
-        given(bookRepository.findFirstByUserAndIsProvisionFalseOrderByCreatedAtAsc(user))
+        given(bookRepository.findFirstByUserAndIsProvisionFalseWithReviewWords(user))
                 .willReturn(Optional.empty());
 
         // When & Then

@@ -46,7 +46,7 @@ public class StoryGenerationService {
             return;
         }
 
-        List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
+        List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
         unknownWords.forEach(UnknownWord::nextReviewSetting);
 
         BookCategory category = BookCategory.random();
@@ -67,6 +67,7 @@ public class StoryGenerationService {
                 user.getAbilityScore(),
                 totalWords
         );
+        book.addReviewWord(unknownWords);
         bookRepository.save(book);
 
         List<Quiz> quizzes = parseQuizzes(response, book);
