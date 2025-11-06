@@ -17,7 +17,7 @@ public class UnknownWordTest {
     void nextReviewSettingFirstReview() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         UnknownWord unknownWord = new UnknownWord(
                 user, book, "example", "예시",
                 "This is an example.", "이것은 예시입니다.",
@@ -37,7 +37,7 @@ public class UnknownWordTest {
     void nextReviewSettingMultipleTimes() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         UnknownWord word = new UnknownWord(
                 user, book, "example", "예시",
                 "This is an example.", "이것은 예시입니다.",

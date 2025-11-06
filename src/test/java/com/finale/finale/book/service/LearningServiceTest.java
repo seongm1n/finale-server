@@ -3,6 +3,7 @@ package com.finale.finale.book.service;
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
 import com.finale.finale.book.domain.Book;
+import com.finale.finale.book.domain.BookCategory;
 import com.finale.finale.book.domain.Quiz;
 import com.finale.finale.book.dto.request.CompleteRequest;
 import com.finale.finale.book.dto.response.CompleteResponse;
@@ -58,7 +59,7 @@ public class LearningServiceTest {
         User user = new User("test@example.com");
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Book book = new Book(user, "test book", "adventure", 500, 600);
+        Book book = new Book(user, "test book", BookCategory.ADVENTURE, 500, 600);
         ReflectionTestUtils.setField(book, "id", 1L);
 
         Quiz quiz1 = new Quiz(book, "Quesion 1", true);
@@ -127,7 +128,7 @@ public class LearningServiceTest {
         User user = new User("test@example.com");
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         ReflectionTestUtils.setField(book, "id", 1L);
 
         Quiz quiz1 = new Quiz(book, "Question 1", true);
@@ -163,7 +164,7 @@ public class LearningServiceTest {
         User user = new User("test@example.com");
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         ReflectionTestUtils.setField(book, "id", 1L);
 
         CompleteRequest request = new CompleteRequest(
