@@ -4,14 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
-import com.finale.finale.book.domain.Book;
-import com.finale.finale.book.domain.Quiz;
-import com.finale.finale.book.domain.Sentence;
-import com.finale.finale.book.domain.UnknownWord;
-import com.finale.finale.book.dto.response.QuizResponse;
-import com.finale.finale.book.dto.request.StoryGenerationRequest;
-import com.finale.finale.book.dto.response.StoryGenerationResponse;
-import com.finale.finale.book.dto.response.SentenceResponse;
+import com.finale.finale.book.domain.*;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
@@ -21,17 +14,16 @@ import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class StoryGenerationService {
 
     private final ChatClient chatClient;
@@ -41,85 +33,59 @@ public class StoryGenerationService {
     private final SentenceRepository sentenceRepository;
     private final QuizRepository quizRepository;
 
-    public StoryGenerationResponse generate(StoryGenerationRequest request, Long userId) {
-        List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
-        unknownWords.forEach(UnknownWord::nextReviewSetting);
-
+    @Async
+    @Transactional
+    public void generate(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        String promptText = createPrompt(request, unknownWords, user);
+        if (bookRepository.countByUserAndIsProvisionFalse(user) >= 2) {
+            throw new CustomException(ErrorCode.BOOK_ARE_ENOUGH);
+        }
+
+        List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());
+        unknownWords.forEach(UnknownWord::nextReviewSetting);
+
+        BookCategory category = BookCategory.random();
+        String promptText = createPrompt(unknownWords, user, category);
 
         String response = chatClient.prompt()
                 .user(promptText)
                 .call()
                 .content();
 
-        List<SentenceResponse> sentences = parseResponse(response);
+        List<Sentence> sentences = parseResponse(response);
         int totalWords = calculateTotalWords(sentences);
 
         Book book = new Book(
                 user,
                 extractTitle(response),
-                request.category(),
+                category,
                 user.getAbilityScore(),
                 totalWords
         );
         bookRepository.save(book);
 
-        List<QuizResponse> quizzes = parseQuizzes(response, book);
-
+        List<Quiz> quizzes = parseQuizzes(response, book);
+        saveQuizzes(quizzes);
         saveSentences(sentences, book);
-        saveQuizzes(quizzes, book);
-
-        return new StoryGenerationResponse(
-                book.getId(),
-                book.getTitle(),
-                book.getCategory(),
-                book.getAbilityScore(),
-                book.getTotalWordCount(),
-                sentences,
-                quizzes,
-                LocalDateTime.now()
-        );
     }
 
-    private void saveQuizzes(List<QuizResponse> quizzes, Book book) {
-        List<Quiz> quizEntities = quizzes.stream()
-                .map(quizResponse -> new Quiz(
-                        book,
-                        quizResponse.question(),
-                        quizResponse.correctAnswer()
-                ))
-                .toList();
-
-        quizRepository.saveAll(quizEntities);
+    private void saveQuizzes(List<Quiz> quizzes) {
+        quizRepository.saveAll(quizzes);
     }
 
-    private void saveSentences(List<SentenceResponse> sentences, Book book) {
-        List<Sentence> sentenceEntities = sentences.stream()
-                .map(sentenceResponse -> new Sentence(
-                        book,
-                        sentenceResponse.paragraphNumber(),
-                        sentenceResponse.sentenceOrder(),
-                        sentenceResponse.englishText(),
-                        sentenceResponse.koreanText()
-                ))
-                .toList();
-
-        sentenceRepository.saveAll(sentenceEntities);
+    private void saveSentences(List<Sentence> sentences, Book book) {
+        sentences.forEach(sentence -> sentence.updateBook(book));
+        sentenceRepository.saveAll(sentences);
     }
 
-    private String createPrompt(StoryGenerationRequest request, List<UnknownWord> unknownWords, User user) {
+    private String createPrompt(List<UnknownWord> unknownWords, User user, BookCategory category) {
         Random random = new Random();
         boolean quiz1Answer = random.nextBoolean();
         boolean quiz2Answer = random.nextBoolean();
 
         StringBuilder vocabSection = new StringBuilder();
-
-        if (request.recommendedWords() != null && !request.recommendedWords().isEmpty()) {
-            vocabSection.append("NEW WORDS: ").append(String.join(", ", request.recommendedWords()));
-        }
 
         if (!unknownWords.isEmpty()) {
             if (!vocabSection.isEmpty()) vocabSection.append("\n");
@@ -166,7 +132,7 @@ public class StoryGenerationService {
             6. Create questions that match the given answers based on story content
             7. Return pure JSON only (no code blocks, no markdown)
             """,
-                request.category(),
+                category.getValue(),
                 (int) (user.getAbilityScore() * 1.4),
                 vocabSection.toString().trim(),
                 quiz1Answer,
@@ -176,7 +142,7 @@ public class StoryGenerationService {
         );
     }
 
-    private List<SentenceResponse> parseResponse(String response) {
+    private List<Sentence> parseResponse(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
 
@@ -185,11 +151,12 @@ public class StoryGenerationService {
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
             JsonNode sentencesNode = rootNode.get("sentences");
 
-            List<SentenceResponse> sentences = new ArrayList<>();
+            List<Sentence> sentences = new ArrayList<>();
 
             if (sentencesNode != null && sentencesNode.isArray()) {
                 for (JsonNode sentenceNode : sentencesNode) {
-                    SentenceResponse sentence = new SentenceResponse(
+                    Sentence sentence = new Sentence(
+                            null,
                             sentenceNode.get("paragraph_number").asInt(),
                             sentenceNode.get("sentence_order").asInt(),
                             sentenceNode.get("english_text").asText(),
@@ -198,7 +165,6 @@ public class StoryGenerationService {
                     sentences.add(sentence);
                 }
             }
-
             return sentences;
         } catch (Exception e) {
             throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);
@@ -238,14 +204,14 @@ public class StoryGenerationService {
         return cleaned.trim();
     }
 
-    private List<QuizResponse> parseQuizzes(String response, Book book) {
+    private List<Quiz> parseQuizzes(String response, Book book) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
             JsonNode quizzesNode = rootNode.get("quizzes");
 
-            List<QuizResponse> quizzes = new ArrayList<>();
+            List<Quiz> quizzes = new ArrayList<>();
 
             if (quizzesNode != null && quizzesNode.isArray()) {
                 for (JsonNode quizNode : quizzesNode) {
@@ -254,13 +220,7 @@ public class StoryGenerationService {
                             quizNode.get("question").asText(),
                             quizNode.get("correct_answer").asBoolean()
                     );
-                    quizRepository.save(quiz);
-                    QuizResponse quizResponse = new QuizResponse(
-                            quiz.getId(),
-                            quiz.getQuestion(),
-                            quiz.getCorrectAnswer()
-                    );
-                    quizzes.add(quizResponse);
+                    quizzes.add(quiz);
                 }
             }
             return quizzes;
@@ -269,10 +229,10 @@ public class StoryGenerationService {
         }
     }
 
-    private int calculateTotalWords(List<SentenceResponse> sentences) {
+    private int calculateTotalWords(List<Sentence> sentences) {
         return sentences.stream()
                 .mapToInt(sentence -> {
-                    String englishText = sentence.englishText();
+                    String englishText = sentence.getEnglishText();
                     if (englishText == null || englishText.isBlank()) {
                         return 0;
                     }

@@ -44,4 +44,8 @@ public class Sentence {
         this.englishText = englishText;
         this.koreanText = koreanText;
     }
+
+    public void updateBook(Book book) {
+        this.book = book;
+    }
 }
