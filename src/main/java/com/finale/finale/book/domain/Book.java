@@ -27,8 +27,9 @@ public class Book {
     @Column(nullable = false, length = 255)
     private String title;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private String category;
+    private BookCategory category;
 
     @Column(name = "ability_score", nullable = false)
     private Integer abilityScore;
@@ -40,13 +41,13 @@ public class Book {
     private Boolean isCompleted = false;
 
     @Column(name = "is_provision", nullable = false)
-    private Boolean isProvision = true;
+    private Boolean isProvision = false;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public Book(User user, String title, String category, Integer abilityScore, Integer totalWordCount) {
+    public Book(User user, String title, BookCategory category, Integer abilityScore, Integer totalWordCount) {
         this.user = user;
         this.title = title;
         this.category = category;
@@ -65,5 +66,9 @@ public class Book {
         if (isCompleted) {
             throw new CustomException(ErrorCode.BOOK_ALREADY_COMPLETED);
         }
+    }
+
+    public void markAsProvision() {
+        this.isProvision = true;
     }
 }
