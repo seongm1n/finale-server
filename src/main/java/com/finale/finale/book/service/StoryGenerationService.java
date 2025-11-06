@@ -13,6 +13,7 @@ import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.Random;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class StoryGenerationService {
 
@@ -40,7 +42,8 @@ public class StoryGenerationService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
         if (bookRepository.countByUserAndIsProvisionFalse(user) >= 2) {
-            throw new CustomException(ErrorCode.BOOK_ARE_ENOUGH);
+            log.info("User {} 유저의 미할당 책이 충분합니다.", userId);
+            return;
         }
 
         List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUserIdAndNextReviewDateBeforeOrEqual(userId, LocalDate.now());

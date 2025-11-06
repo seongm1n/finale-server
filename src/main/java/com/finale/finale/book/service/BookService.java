@@ -28,6 +28,7 @@ public class BookService {
 
     @Transactional
     public StoryGenerationResponse getNewStory(Long userId) {
+        // TODO : 비관적 락 구현 고려
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Book book = bookRepository.findFirstByUserAndIsProvisionFalseOrderByCreatedAtAsc(user)

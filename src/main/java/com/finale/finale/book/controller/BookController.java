@@ -23,14 +23,6 @@ public class BookController {
     private final BookService bookService;
     private final LearningService learningService;
 
-    @GetMapping("/generate")
-    public ResponseEntity<String> generate(
-            @AuthenticationPrincipal Long userId
-    ) {
-        storyGenerationService.generate(userId);
-        return ResponseEntity.ok("okay");
-    }
-
     @PostMapping("/{bookId}/complete")
     public ResponseEntity<CompleteResponse> complete(
             @Valid
