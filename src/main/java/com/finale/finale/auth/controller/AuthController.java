@@ -5,6 +5,7 @@ import com.finale.finale.auth.dto.response.LoginResponse;
 import com.finale.finale.auth.dto.response.LogoutResponse;
 import com.finale.finale.auth.dto.response.RefreshResponse;
 import com.finale.finale.auth.dto.response.UserResponse;
+import com.finale.finale.book.service.StoryGenerationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final StoryGenerationService storyGenerationService;
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
@@ -67,6 +69,7 @@ public class AuthController {
             @RequestBody AbilityRequest request
     ) {
         UserResponse response = authService.setAbility(userId, request);
+        storyGenerationService.generate(userId);
         return ResponseEntity.ok(response);
     }
 }

@@ -16,7 +16,7 @@ public class BookTest {
     void markAsCompleted() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
 
         // When
         book.markAsCompleted();
@@ -30,7 +30,7 @@ public class BookTest {
     void validateCompleteSuccess() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
 
         // When & Then
         assertThatNoException().isThrownBy(() -> book.validateComplete(user));
@@ -42,7 +42,7 @@ public class BookTest {
         // Given
         User owner = new User("owner@example.com");
         User other = new User("other@example.com");
-        Book book = new Book(owner, "Test Book", "adventure", 500, 600);
+        Book book = new Book(owner, "Test Book", BookCategory.ADVENTURE, 500, 600);
 
         // When & Then
         assertThatThrownBy(() -> book.validateComplete(other))
@@ -55,7 +55,7 @@ public class BookTest {
     void validateCompleteAlreadyCompleted() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         book.markAsCompleted();
 
         // When & Then

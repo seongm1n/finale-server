@@ -16,7 +16,7 @@ public class QuizTest {
     void answerQuiz() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         Quiz quiz = new Quiz(book, "Is this true?", true);
 
         // When
@@ -32,7 +32,7 @@ public class QuizTest {
     void validateMatchSuccess() {
         // Given
         User user = new User("test@example.com");
-        Book book = new Book(user, "Test Book", "adventure", 500, 600);
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 500, 600);
         Quiz quiz = new Quiz(book, "Is this true?", true);
 
         // When & Then
@@ -44,8 +44,8 @@ public class QuizTest {
     void validateMatchBookMismatch() {
         // Given
         User user = new User("test@example.com");
-        Book book1 = new Book(user, "Test Book 1", "adventure", 500, 600);
-        Book book2 = new Book(user, "Test Book 2", "adventure", 500, 600);
+        Book book1 = new Book(user, "Test Book 1", BookCategory.ADVENTURE, 500, 600);
+        Book book2 = new Book(user, "Test Book 2", BookCategory.ADVENTURE, 500, 600);
         Quiz quiz = new Quiz(book1, "Is this true?", true);
 
         // When & Then

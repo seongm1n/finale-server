@@ -20,6 +20,8 @@ public enum ErrorCode {
     ABILITY_ALREADY_INITIALIZED(HttpStatus.BAD_REQUEST, "능력치가 이미 초기화되어 있습니다."),
     BOOK_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "이미 완료된 원서입니다."),
     BOOK_USER_MISMATCH(HttpStatus.FORBIDDEN, "원서에 접근할 수 있는 권한이 없습니다."),
+    BOOK_NOT_READY(HttpStatus.BAD_REQUEST, "아직 생성된 글이 없습니다."),
+    BOOK_ARE_ENOUGH(HttpStatus.BAD_REQUEST, "이미 원서가 충분합니다."),
     QUIZ_BOOK_MISMATCH(HttpStatus.FORBIDDEN, "퀴즈가 해당 원서에 속하지 않습니다."),
 
     AI_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스와의 통신에 실패했습니다."),
