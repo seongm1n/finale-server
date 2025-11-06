@@ -6,9 +6,11 @@ import com.finale.finale.book.domain.Book;
 import com.finale.finale.book.dto.response.QuizResponse;
 import com.finale.finale.book.dto.response.SentenceResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
+import com.finale.finale.book.dto.response.UnknownWordResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -25,6 +27,7 @@ public class BookService {
     private final BookRepository bookRepository;
     private final SentenceRepository sentenceRepository;
     private final QuizRepository quizRepository;
+    private final UnknownWordRepository unknownWordRepository;
 
     @Transactional
     public StoryGenerationResponse getNewStory(Long userId) {
@@ -33,6 +36,7 @@ public class BookService {
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         Book book = bookRepository.findFirstByUserAndIsProvisionFalseOrderByCreatedAtAsc(user)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_READY));
+
         List<SentenceResponse> sentences = sentenceRepository.findAllByBook(book).stream()
                 .map(sentence -> new SentenceResponse(
                         sentence.getParagraphNumber(),
@@ -41,11 +45,21 @@ public class BookService {
                         sentence.getKoreanText()
                 ))
                 .toList();
+
         List<QuizResponse> quizzes = quizRepository.findAllByBook(book).stream()
                 .map(quiz -> new QuizResponse(
                         quiz.getId(),
                         quiz.getQuestion(),
                         quiz.getCorrectAnswer()
+                ))
+                .toList();
+
+        List<UnknownWordResponse> unknownWords = unknownWordRepository.findAllByBook(book).stream()
+                .map(unknownWord -> new UnknownWordResponse(
+                        unknownWord.getWord(),
+                        unknownWord.getWord(),
+                        unknownWord.getSentence(),
+                        unknownWord.getSentenceMeaning()
                 ))
                 .toList();
 
@@ -58,6 +72,7 @@ public class BookService {
                 book.getTotalWordCount(),
                 sentences,
                 quizzes,
+                unknownWords,
                 book.getCreatedAt()
         );
     }

@@ -8,6 +8,7 @@ import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
@@ -40,6 +41,9 @@ class BookServiceTest {
     @Mock
     private QuizRepository quizRepository;
 
+    @Mock
+    private UnknownWordRepository unknownWordRepository;
+
     @InjectMocks
     private BookService bookService;
 
@@ -56,6 +60,7 @@ class BookServiceTest {
                 .willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of());
         given(quizRepository.findAllByBook(book)).willReturn(List.of());
+        given(unknownWordRepository.findAllByBook(book)).willReturn(List.of());
 
         // When
         StoryGenerationResponse response = bookService.getNewStory(userId);
