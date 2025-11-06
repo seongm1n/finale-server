@@ -10,7 +10,6 @@ import com.finale.finale.book.dto.response.UnknownWordResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
-import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -27,14 +26,13 @@ public class BookService {
     private final BookRepository bookRepository;
     private final SentenceRepository sentenceRepository;
     private final QuizRepository quizRepository;
-    private final UnknownWordRepository unknownWordRepository;
 
     @Transactional
     public StoryGenerationResponse getNewStory(Long userId) {
         // TODO : 비관적 락 구현 고려
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Book book = bookRepository.findFirstByUserAndIsProvisionFalseOrderByCreatedAtAsc(user)
+        Book book = bookRepository.findFirstByUserAndIsProvisionFalseWithReviewWords(user)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_READY));
 
         List<SentenceResponse> sentences = sentenceRepository.findAllByBook(book).stream()
@@ -54,10 +52,10 @@ public class BookService {
                 ))
                 .toList();
 
-        List<UnknownWordResponse> unknownWords = unknownWordRepository.findAllByBook(book).stream()
+        List<UnknownWordResponse> unknownWords = book.getReviewWords().stream()
                 .map(unknownWord -> new UnknownWordResponse(
                         unknownWord.getWord(),
-                        unknownWord.getWord(),
+                        unknownWord.getWordMeaning(),
                         unknownWord.getSentence(),
                         unknownWord.getSentenceMeaning()
                 ))
