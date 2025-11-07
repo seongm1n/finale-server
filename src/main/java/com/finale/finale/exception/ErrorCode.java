@@ -17,6 +17,11 @@ public enum ErrorCode {
     REFRESH_TOKEN_NOT_FOUND(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 존재하지 않습니다."),
     REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "리프레시 토큰이 유효하지 않습니다."),
 
+    AUTHENTICATION_REQUIRED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "접근 권한이 없습니다."),
+
     ABILITY_ALREADY_INITIALIZED(HttpStatus.BAD_REQUEST, "능력치가 이미 초기화되어 있습니다."),
     BOOK_ALREADY_COMPLETED(HttpStatus.BAD_REQUEST, "이미 완료된 원서입니다."),
     BOOK_USER_MISMATCH(HttpStatus.FORBIDDEN, "원서에 접근할 수 있는 권한이 없습니다."),
