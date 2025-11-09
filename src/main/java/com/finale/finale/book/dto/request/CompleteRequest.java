@@ -30,6 +30,9 @@ public record CompleteRequest(
             @NotNull(message = "문장 뜻은 필수 입력 값입니다.")
             String sentenceMeaning,
 
+            @NotNull(message = "문장 ID는 필수 입력 값입니다.")
+            Long sentenceId,
+
             @NotNull(message = "단어 위치는 필수 입력 값입니다.")
             int location,
 

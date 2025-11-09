@@ -39,6 +39,9 @@ public class UnknownWord {
     @Column(name = "sentence_meaning", nullable = false)
     private String sentenceMeaning;
 
+    @Column(name = "sentence_id", nullable = false)
+    private Long sentenceId;
+
     @Column(nullable = false)
     private Integer location;
 
@@ -55,13 +58,14 @@ public class UnknownWord {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public UnknownWord(User user, Book book, String word, String wordMeaning, String sentence, String sentenceMeaning, int location, int length, LocalDate nextReviewDate) {
+    public UnknownWord(User user, Book book, String word, String wordMeaning, String sentence, String sentenceMeaning, Long sentenceId, int location, int length, LocalDate nextReviewDate) {
         this.user = user;
         this.book = book;
         this.word = word;
         this.wordMeaning = wordMeaning;
         this.sentence = sentence;
         this.sentenceMeaning = sentenceMeaning;
+        this.sentenceId = sentenceId;
         this.location = location;
         this.length = length;
         this.nextReviewDate = nextReviewDate;

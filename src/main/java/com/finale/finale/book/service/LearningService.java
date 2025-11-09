@@ -155,6 +155,7 @@ public class LearningService {
                     unknownWordRequest.wordMeaning(),
                     unknownWordRequest.sentence(),
                     unknownWordRequest.sentenceMeaning(),
+                    unknownWordRequest.sentenceId(),
                     unknownWordRequest.location(),
                     unknownWordRequest.length(),
                     LocalDate.now().plusDays(UNKNOWN_WORD_FIRST_REVIEW_DAYS)

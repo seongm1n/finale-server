@@ -37,6 +37,7 @@ public class BookService {
 
         List<SentenceResponse> sentences = sentenceRepository.findAllByBook(book).stream()
                 .map(sentence -> new SentenceResponse(
+                        sentence.getId(),
                         sentence.getParagraphNumber(),
                         sentence.getSentenceOrder(),
                         sentence.getEnglishText(),
