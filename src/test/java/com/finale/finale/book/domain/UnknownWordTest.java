@@ -21,7 +21,7 @@ public class UnknownWordTest {
         UnknownWord unknownWord = new UnknownWord(
                 user, book, "example", "예시",
                 "This is an example.", "이것은 예시입니다.",
-                8, 7, LocalDate.now()
+                1L, 8, 7, LocalDate.now()
         );
 
         // When
@@ -41,7 +41,7 @@ public class UnknownWordTest {
         UnknownWord word = new UnknownWord(
                 user, book, "example", "예시",
                 "This is an example.", "이것은 예시입니다.",
-                8, 7, LocalDate.now()
+                1L, 8, 7, LocalDate.now()
         );
 
         // When
