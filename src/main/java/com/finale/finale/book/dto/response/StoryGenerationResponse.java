@@ -14,4 +14,44 @@ public record StoryGenerationResponse(
         List<UnknownWordResponse> unknownWordList,
         LocalDateTime createdAt
 ) {
+    public record SentenceResponse(
+            Long sentenceId,
+            int paragraphNumber,
+            int sentenceOrder,
+            String englishText,
+            String koreanText,
+            List<WordResponse> words,
+            List<PhraseResponse> phrases
+    ) {}
+
+    public record QuizResponse(
+            Long id,
+            String question,
+            Boolean correctAnswer
+        ) {}
+
+    public record UnknownWordResponse(
+            String word,
+            String wordMeaning,
+            String sentence,
+            String sentenceMeaning
+    ) {}
+
+    public record WordResponse(
+            String word,
+            String meaning,
+            Integer location,
+            Integer length
+    ) {}
+
+    public record PhraseResponse(
+            String meaning,
+            List<ExpressionResponse> expression
+    ) {}
+
+    public record ExpressionResponse(
+            String word,
+            Integer location,
+            Integer length
+    ) {}
 }
