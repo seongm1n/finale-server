@@ -34,6 +34,7 @@ public class StoryGenerationService {
     private final BookRepository bookRepository;
     private final SentenceRepository sentenceRepository;
     private final QuizRepository quizRepository;
+    private final WordMeaningService wordMeaningService;
 
     @Async
     @Transactional
@@ -73,6 +74,8 @@ public class StoryGenerationService {
         List<Quiz> quizzes = parseQuizzes(response, book);
         saveQuizzes(quizzes);
         saveSentences(sentences, book);
+
+        sentences.forEach(wordMeaningService::extractWordMeanings);
     }
 
     private void saveQuizzes(List<Quiz> quizzes) {
