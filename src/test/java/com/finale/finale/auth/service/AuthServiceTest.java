@@ -15,6 +15,12 @@ import com.finale.finale.auth.oauth.OAuth2ValidatorFactory;
 import com.finale.finale.auth.repository.OAuthProviderRepository;
 import com.finale.finale.auth.repository.RefreshTokenRepository;
 import com.finale.finale.auth.repository.UserRepository;
+import com.finale.finale.book.repository.BookRepository;
+import com.finale.finale.book.repository.PhraseRepository;
+import com.finale.finale.book.repository.QuizRepository;
+import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownWordRepository;
+import com.finale.finale.book.repository.WordRepository;
 import com.finale.finale.config.JwtTokenProvider;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
@@ -58,6 +64,24 @@ public class AuthServiceTest {
 
     @Mock
     private OAuth2TokenValidator tokenValidator;
+
+    @Mock
+    private BookRepository bookRepository;
+
+    @Mock
+    private SentenceRepository sentenceRepository;
+
+    @Mock
+    private QuizRepository quizRepository;
+
+    @Mock
+    private UnknownWordRepository unknownWordRepository;
+
+    @Mock
+    private PhraseRepository phraseRepository;
+
+    @Mock
+    private WordRepository wordRepository;
 
     @InjectMocks
     private AuthService authService;
@@ -238,5 +262,41 @@ public class AuthServiceTest {
         assertThat(response.abilityScore()).isEqualTo(700);
         assertThat(user.getAbilityScore()).isEqualTo(700);
         verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 사용자 없음")
+    void withdrawUserNotFound() {
+        // Given
+        given(userRepository.findById(999L)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> authService.withdraw(999L))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴 - 성공")
+    void withdrawSuccess() {
+        // Given
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        OAuthProvider oauthProvider = new OAuthProvider(user, "GOOGLE", "google-123");
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(bookRepository.findAllByUser(user)).willReturn(java.util.List.of());
+        given(oauthProviderRepository.findByUser(user)).willReturn(Optional.of(oauthProvider));
+
+        // When
+        authService.withdraw(1L);
+
+        // Then
+        verify(unknownWordRepository).deleteAllByUserId(1L);
+        verify(bookRepository).deleteAll(any());
+        verify(oauthProviderRepository).delete(oauthProvider);
+        verify(refreshTokenRepository).deleteByUser(user);
+        verify(userRepository).delete(user);
     }
 }

@@ -9,4 +9,6 @@ import java.util.List;
 public interface UnknownWordRepository extends JpaRepository<UnknownWord, Long> {
 
     List<UnknownWord> findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(Long userId, LocalDate today);
+
+    void deleteAllByUserId(Long userId);
 }

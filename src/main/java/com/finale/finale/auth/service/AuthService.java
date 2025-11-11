@@ -23,6 +23,12 @@ import com.finale.finale.auth.oauth.OAuth2ValidatorFactory;
 import com.finale.finale.auth.repository.OAuthProviderRepository;
 import com.finale.finale.auth.repository.RefreshTokenRepository;
 import com.finale.finale.auth.repository.UserRepository;
+import com.finale.finale.book.repository.BookRepository;
+import com.finale.finale.book.repository.PhraseRepository;
+import com.finale.finale.book.repository.QuizRepository;
+import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownWordRepository;
+import com.finale.finale.book.repository.WordRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -36,6 +42,12 @@ public class AuthService {
     private final UserRepository userRepository;
     private final OAuthProviderRepository oauthProviderRepository;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final BookRepository bookRepository;
+    private final SentenceRepository sentenceRepository;
+    private final QuizRepository quizRepository;
+    private final UnknownWordRepository unknownWordRepository;
+    private final PhraseRepository phraseRepository;
+    private final WordRepository wordRepository;
 
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
@@ -95,6 +107,37 @@ public class AuthService {
         userRepository.save(user);
 
         return toUserResponse(user);
+    }
+
+    public void withdraw(Long userId) {
+        User user = userRepository.findById(userId)
+            .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        var books = bookRepository.findAllByUser(user);
+
+        for (var book : books) {
+            book.getReviewWords().clear();
+
+            var sentences = sentenceRepository.findAllByBook(book);
+
+            for (var sentence : sentences) {
+                phraseRepository.deleteAllBySentence(sentence);
+                wordRepository.deleteAllBySentence(sentence);
+            }
+
+            quizRepository.deleteAll(quizRepository.findAllByBook(book));
+            sentenceRepository.deleteAll(sentences);
+        }
+
+        unknownWordRepository.deleteAllByUserId(userId);
+        bookRepository.deleteAll(books);
+
+        oauthProviderRepository.findByUser(user)
+            .ifPresent(oauthProviderRepository::delete);
+
+        refreshTokenRepository.deleteByUser(user);
+
+        userRepository.delete(user);
     }
 
     public void logout(String token) {
