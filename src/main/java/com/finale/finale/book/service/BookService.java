@@ -6,6 +6,7 @@ import com.finale.finale.book.domain.Book;
 import com.finale.finale.book.domain.Phrase;
 import com.finale.finale.book.domain.Sentence;
 import com.finale.finale.book.domain.Word;
+import com.finale.finale.book.dto.response.BookmarkResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse.QuizResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse.SentenceResponse;
@@ -130,5 +131,18 @@ public class BookService {
                 unknownWords,
                 book.getCreatedAt()
         );
+    }
+
+    @Transactional
+    public BookmarkResponse toggleBookmark(Long userId, Long bookId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
+
+        book.validateBookmarked(user);
+        book.toggleIsBookmarked();
+
+        return new BookmarkResponse(book.getId(), book.getIsBookmarked());
     }
 }

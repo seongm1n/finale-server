@@ -1,6 +1,7 @@
 package com.finale.finale.book.controller;
 
 import com.finale.finale.book.dto.request.CompleteRequest;
+import com.finale.finale.book.dto.response.BookmarkResponse;
 import com.finale.finale.book.dto.response.CompleteResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.service.BookService;
@@ -44,5 +45,14 @@ public class BookController {
             storyGenerationService.generate(userId);
             throw e;
         }
+    }
+
+    @PostMapping("/{bookId}/bookmark")
+    public ResponseEntity<BookmarkResponse> toggleBookmark(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long bookId
+    ) {
+        BookmarkResponse response = bookService.toggleBookmark(userId, bookId);
+        return ResponseEntity.ok(response);
     }
 }
