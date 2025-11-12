@@ -117,7 +117,11 @@ public class StoryGenerationService {
         }
 
         return String.format("""
-            Create an English learning story.
+            You are a professional storyteller and novelist who specializes in creating captivating stories for readers of all levels.
+            Your stories are engaging, well-structured, and immersive, making readers feel like they're reading a real book.
+            You have expertise in adapting your writing style to match different reading levels while maintaining literary quality.
+
+            Create an engaging story that feels like a real book chapter.
 
             STORY SETTINGS:
             - Category: %s

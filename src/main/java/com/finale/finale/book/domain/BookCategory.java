@@ -8,7 +8,7 @@ import java.util.Random;
 @Getter
 @RequiredArgsConstructor
 public enum BookCategory {
-    GENERAL("general", "일반"),
+    SF("sf", "공상과학"),
     COMEDY("comedy", "코미디"),
     ROMANCE("romance", "로맨스"),
     MORAL("moral", "교훈"),
