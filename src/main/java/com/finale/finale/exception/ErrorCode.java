@@ -28,6 +28,7 @@ public enum ErrorCode {
     BOOK_NOT_READY(HttpStatus.BAD_REQUEST, "아직 생성된 글이 없습니다."),
     BOOK_ARE_ENOUGH(HttpStatus.BAD_REQUEST, "이미 원서가 충분합니다."),
     BOOK_GENERATION_IN_PROGRESS(HttpStatus.BAD_REQUEST, "원서 생성이 이미 진행 중입니다."),
+    BOOK_NOT_COMPLETED(HttpStatus.BAD_REQUEST, "완료되지 않은 원서입니다."),
     QUIZ_BOOK_MISMATCH(HttpStatus.FORBIDDEN, "퀴즈가 해당 원서에 속하지 않습니다."),
 
     AI_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스와의 통신에 실패했습니다."),

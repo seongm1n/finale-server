@@ -45,6 +45,9 @@ public class Book {
     @Column(name = "is_provision", nullable = false)
     private Boolean isProvision = false;
 
+    @Column(name = "is_bookmarked", nullable = false)
+    private Boolean isBookmarked = false;
+
     @ManyToMany
     @JoinTable(
             name = "book_review_words",
@@ -84,5 +87,19 @@ public class Book {
 
     public void addReviewWord(List<UnknownWord> unknownWords) {
         this.reviewWords.addAll(unknownWords);
+    }
+
+    public void toggleIsBookmarked() {
+        this.isBookmarked = !this.isBookmarked;
+    }
+
+    public void validateBookmarked(User user) {
+        if (!this.user.equals(user)) {
+            throw new CustomException(ErrorCode.BOOK_USER_MISMATCH);
+        }
+
+        if (!isCompleted) {
+            throw new CustomException(ErrorCode.BOOK_NOT_COMPLETED);
+        }
     }
 }
