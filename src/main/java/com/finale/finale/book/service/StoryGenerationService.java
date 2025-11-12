@@ -35,47 +35,58 @@ public class StoryGenerationService {
     private final SentenceRepository sentenceRepository;
     private final QuizRepository quizRepository;
     private final WordMeaningService wordMeaningService;
+    private final RedisLockService redisLockService;
 
     @Async
     @Transactional
     public void generate(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        String lockKey = "book-generation:" + userId;
 
-        if (bookRepository.countByUserAndIsProvisionFalse(user) >= 2) {
-            log.info("User {} 유저의 미할당 책이 충분합니다.", userId);
-            return;
+        if (!redisLockService.tryLock(lockKey, 0, 30)) {
+            throw new CustomException(ErrorCode.BOOK_GENERATION_IN_PROGRESS);
         }
 
-        List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
-        unknownWords.forEach(UnknownWord::nextReviewSetting);
+        try {
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        BookCategory category = BookCategory.random();
-        String promptText = createPrompt(unknownWords, user, category);
+            if (bookRepository.countByUserAndIsProvisionFalse(user) >= 2) {
+                log.info("User {} 유저의 미할당 책이 충분합니다.", userId);
+                return;
+            }
 
-        String response = chatClient.prompt()
-                .user(promptText)
-                .call()
-                .content();
+            List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
+            unknownWords.forEach(UnknownWord::nextReviewSetting);
 
-        List<Sentence> sentences = parseResponse(response);
-        int totalWords = calculateTotalWords(sentences);
+            BookCategory category = BookCategory.random();
+            String promptText = createPrompt(unknownWords, user, category);
 
-        Book book = new Book(
-                user,
-                extractTitle(response),
-                category,
-                user.getAbilityScore(),
-                totalWords
-        );
-        book.addReviewWord(unknownWords);
-        bookRepository.save(book);
+            String response = chatClient.prompt()
+                    .user(promptText)
+                    .call()
+                    .content();
 
-        List<Quiz> quizzes = parseQuizzes(response, book);
-        saveQuizzes(quizzes);
-        saveSentences(sentences, book);
+            List<Sentence> sentences = parseResponse(response);
+            int totalWords = calculateTotalWords(sentences);
 
-        sentences.forEach(wordMeaningService::extractWordMeanings);
+            Book book = new Book(
+                    user,
+                    extractTitle(response),
+                    category,
+                    user.getAbilityScore(),
+                    totalWords
+            );
+            book.addReviewWord(unknownWords);
+            bookRepository.save(book);
+
+            List<Quiz> quizzes = parseQuizzes(response, book);
+            saveQuizzes(quizzes);
+            saveSentences(sentences, book);
+
+            sentences.forEach(wordMeaningService::extractWordMeanings);
+        } finally {
+            redisLockService.unlock(lockKey);
+        }
     }
 
     private void saveQuizzes(List<Quiz> quizzes) {
