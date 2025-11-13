@@ -15,6 +15,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -31,15 +34,6 @@ public class WordMeaningService {
               extracting both the meaning of each word and any multi-word expressions (phrases)
               that act as single semantic units in context.
               Return the result strictly in JSON format, without any explanations or extra text.
-
-              ---
-
-              Analysis Rules:
-              1️⃣ Analyze each individual word and provide its basic meaning in Korean.
-              2️⃣ Identify and extract any combination of two or more words that together form a single semantic unit
-                 (e.g., phrasal verbs, idioms, prepositional phrases, or common expressions).
-              3️⃣ Return both results as separate JSON arrays.
-                 If there are no phrases in the sentence, return `"phrases": []`.
 
               ---
 
@@ -63,11 +57,15 @@ public class WordMeaningService {
 
               ---
 
-              Detailed Rules:
-              - Include in `"phrases"` only those combinations that convey a distinct meaning beyond the sum of individual words.
-                (e.g., "looked the information up" → `"expression": ["look", "up"]`)
-              - Even if the phrase components are not adjacent in the sentence, include them if they function together as one semantic unit.
-              - If no multi-word expressions exist, `"phrases": []` must still be returned.
+              Rules:
+              - Each word must provide its basic meaning in Korean.
+              - Identify multi-word expressions (phrasal verbs, idioms, etc.) that form a single semantic unit.
+              - ⚠️ CRITICAL: In "expression", each element MUST be a separate word (no spaces).
+                ❌ Wrong: ["spoke of"]
+                ✅ Correct: ["spoke", "of"]
+              - Even if phrase components are not adjacent, include them if they function together.
+                (e.g., "looked the information up" → ["looked", "up"])
+              - If no phrases exist, return `"phrases": []`.
               - Output must be **only valid JSON**, no additional commentary.
 
               ---
@@ -127,16 +125,15 @@ public class WordMeaningService {
     }
 
     private Integer findWordLocation(String sentence, String word, int fromIndex) {
-        String lowerSentence = sentence.toLowerCase();
-        String lowerWord = word.toLowerCase();
+        String pattern = "\\b" + Pattern.quote(word) + "\\b";
+        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(sentence);
 
-        int index = lowerSentence.indexOf(lowerWord, fromIndex);
-
-        if (index == -1) {
-            log.warn("Word '{}' not found in sentence: '{}'", word, sentence);
-            return 0;
+        if (m.find(fromIndex)) {
+            return m.start();
         }
 
-        return index;
+        log.warn("Word '{}' not found in sentence: '{}'", word, sentence);
+        return 0;
     }
 }
