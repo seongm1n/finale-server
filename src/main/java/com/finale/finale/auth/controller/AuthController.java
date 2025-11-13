@@ -5,6 +5,7 @@ import com.finale.finale.auth.dto.response.LoginResponse;
 import com.finale.finale.auth.dto.response.LogoutResponse;
 import com.finale.finale.auth.dto.response.RefreshResponse;
 import com.finale.finale.auth.dto.response.UserResponse;
+import com.finale.finale.auth.dto.response.WithdrawResponse;
 import com.finale.finale.book.service.StoryGenerationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -59,9 +60,9 @@ public class AuthController {
     }
 
     @DeleteMapping("/withdraw")
-    public ResponseEntity<String> withdraw(@AuthenticationPrincipal Long userId) {
+    public ResponseEntity<WithdrawResponse> withdraw(@AuthenticationPrincipal Long userId) {
         authService.withdraw(userId);
-        return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
+        return ResponseEntity.ok(new WithdrawResponse("회원 탈퇴가 완료되었습니다"));
     }
 
     @PostMapping("/ability")
