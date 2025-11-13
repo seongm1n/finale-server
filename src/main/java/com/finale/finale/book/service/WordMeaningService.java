@@ -11,11 +11,13 @@ import com.finale.finale.book.repository.PhraseRepository;
 import com.finale.finale.book.repository.WordRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class WordMeaningService {
 
     private final ChatClient chatClient;
@@ -46,16 +48,14 @@ public class WordMeaningService {
                 "words": [
                   {
                     "word": "word",
-                    "meaning": "Korean meaning",
-                    "start": start index (0-based)
+                    "meaning": "Korean meaning"
                   },
                   ...
                 ],
                 "phrases": [
                   {
                     "expression": ["word1", "word2", ...],
-                    "meaning": "Korean meaning",
-                    "start": [start index of word1, start index of word2, ...]
+                    "meaning": "Korean meaning"
                   },
                   ...
                 ]
@@ -67,8 +67,6 @@ public class WordMeaningService {
               - Include in `"phrases"` only those combinations that convey a distinct meaning beyond the sum of individual words.
                 (e.g., "looked the information up" → `"expression": ["look", "up"]`)
               - Even if the phrase components are not adjacent in the sentence, include them if they function together as one semantic unit.
-              - Each `"start"` in `"phrases"` must correspond to the start indices of each word in `"expression"`.
-              - Every word must appear in `"words"` with its `"start"` index (0-based character position).
               - If no multi-word expressions exist, `"phrases": []` must still be returned.
               - Output must be **only valid JSON**, no additional commentary.
 
@@ -94,9 +92,9 @@ public class WordMeaningService {
                 for (JsonNode wordNode : wordsNode) {
                     String word = wordNode.get("word").asText();
                     String meaning = wordNode.get("meaning").asText();
-                    Integer start = wordNode.get("start").asInt();
 
-                    Word wordEntity = new Word(sentence, word, meaning, start);
+                    Integer location = findWordLocation(sentence.getEnglishText(), word, 0);
+                    Word wordEntity = new Word(sentence, word, meaning, location);
                     wordRepository.save(wordEntity);
                 }
             }
@@ -108,13 +106,14 @@ public class WordMeaningService {
                     Phrase phrase = new Phrase(sentence, meaning);
 
                     JsonNode expressionNode = phraseNode.get("expression");
-                    JsonNode startNode = phraseNode.get("start");
+                    int searchFrom = 0;
 
                     for (int i = 0; i < expressionNode.size(); i++) {
                         String wordText = expressionNode.get(i).asText();
-                        Integer startPos = startNode.get(i).asInt();
+                        Integer location = findWordLocation(sentence.getEnglishText(), wordText, searchFrom);
+                        searchFrom = location + wordText.length();
 
-                        PhraseWord phraseWord = new PhraseWord(phrase, wordText, startPos);
+                        PhraseWord phraseWord = new PhraseWord(phrase, wordText, location);
                         phrase.addPhraseWord(phraseWord);
                     }
 
@@ -125,5 +124,19 @@ public class WordMeaningService {
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to parse word meaning response", e);
         }
+    }
+
+    private Integer findWordLocation(String sentence, String word, int fromIndex) {
+        String lowerSentence = sentence.toLowerCase();
+        String lowerWord = word.toLowerCase();
+
+        int index = lowerSentence.indexOf(lowerWord, fromIndex);
+
+        if (index == -1) {
+            log.warn("Word '{}' not found in sentence: '{}'", word, sentence);
+            return 0;
+        }
+
+        return index;
     }
 }
