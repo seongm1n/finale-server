@@ -2,11 +2,9 @@ package com.finale.finale.book.service;
 
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
-import com.finale.finale.book.domain.Book;
-import com.finale.finale.book.domain.Phrase;
-import com.finale.finale.book.domain.Sentence;
-import com.finale.finale.book.domain.Word;
+import com.finale.finale.book.domain.*;
 import com.finale.finale.book.dto.response.BookmarkResponse;
+import com.finale.finale.book.dto.response.CompletedBooksResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse.QuizResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse.SentenceResponse;
@@ -14,8 +12,12 @@ import com.finale.finale.book.dto.response.StoryGenerationResponse.UnknownWordRe
 import com.finale.finale.book.repository.*;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -33,7 +35,7 @@ public class BookService {
     private final QuizRepository quizRepository;
     private final WordRepository wordRepository;
     private final PhraseRepository phraseRepository;
-    private final PhraseWordRepository phraseWordRepository;
+    private final UnknownWordRepository unknownWordRepository;
 
     @Transactional
     public StoryGenerationResponse getNewStory(Long userId) {
@@ -144,5 +146,69 @@ public class BookService {
         book.toggleIsBookmarked();
 
         return new BookmarkResponse(book.getId(), book.getIsBookmarked());
+    }
+
+    @Transactional(readOnly = true)
+    public CompletedBooksResponse getCompletedBooks(Long userId, int page, int size, String sort, String category, Boolean bookmarked) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Sort.Direction direction = sort.equals("latest") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
+
+        BookCategory bookCategory = category != null
+                ? BookCategory.valueOf(category.toUpperCase())
+                : null;
+
+        Page<Book> bookPage = bookRepository.findCompletedBooks(user, bookCategory, bookmarked, pageable);
+
+        List<Long> bookIds = bookPage.getContent().stream()
+                .map(Book::getId)
+                .toList();
+
+        List<UnknownWord> unknownWords = unknownWordRepository.findAllByBookIdIn(bookIds);
+
+        Map<Long, List<UnknownWord>> unknownWordsByBook = unknownWords.stream()
+                .collect(Collectors.groupingBy(uw -> uw.getBook().getId()));
+
+        List<CompletedBooksResponse.CompletedBook> content = bookPage.getContent().stream()
+                .map(book -> toCompletedBook(book, unknownWordsByBook.getOrDefault(book.getId(), Collections.emptyList())))
+                .toList();
+
+        return new CompletedBooksResponse(
+                content,
+                (int) bookPage.getTotalElements(),
+                bookPage.getTotalPages(),
+                bookPage.getNumber(),
+                bookPage.getSize(),
+                bookPage.hasNext(),
+                bookPage.hasPrevious()
+        );
+    }
+
+    private CompletedBooksResponse.CompletedBook toCompletedBook(Book book, List<UnknownWord> unknownWords) {
+        List<CompletedBooksResponse.UnknownWordResponse> unknownWordResponses = unknownWords.stream()
+                .map(word -> CompletedBooksResponse.UnknownWordResponse.builder()
+                        .id(word.getId())
+                        .word(word.getWord())
+                        .wordMeaning(word.getWordMeaning())
+                        .sentence(word.getSentence())
+                        .sentenceMeaning(word.getSentenceMeaning())
+                        .location(word.getLocation())
+                        .length(word.getLength())
+                        .nextReviewDate(word.getNextReviewDate())
+                        .createdAt(word.getCreatedAt())
+                        .build())
+                .toList();
+
+        return CompletedBooksResponse.CompletedBook.builder()
+                .id(book.getId())
+                .title(book.getTitle())
+                .category(book.getCategory().getValue())
+                .abilityScore(book.getAbilityScore())
+                .isBookmarked(book.getIsBookmarked())
+                .createdAt(book.getCreatedAt())
+                .unknownWords(unknownWordResponses)
+                .build();
     }
 }

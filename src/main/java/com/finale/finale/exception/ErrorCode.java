@@ -32,7 +32,10 @@ public enum ErrorCode {
     QUIZ_BOOK_MISMATCH(HttpStatus.FORBIDDEN, "퀴즈가 해당 원서에 속하지 않습니다."),
 
     AI_SERVICE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스와의 통신에 실패했습니다."),
-    AI_RESPONSE_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스로부터 잘못된 응답을 받았습니다.");
+    AI_RESPONSE_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스로부터 잘못된 응답을 받았습니다."),
+
+    INVALID_SORT_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 파라미터입니다."),
+    INVALID_CATEGORY_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 파라미터입니다.");
 
     private final HttpStatus status;
     private final String message;
