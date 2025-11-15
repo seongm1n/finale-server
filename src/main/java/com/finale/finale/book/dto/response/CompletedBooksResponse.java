@@ -6,8 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder
-public record CompletedBookResponse(
+public record CompletedBooksResponse(
         List<CompletedBook> content,
         int totalElements,
         int totalPages,
