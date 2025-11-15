@@ -10,5 +10,7 @@ public interface UnknownWordRepository extends JpaRepository<UnknownWord, Long> 
 
     List<UnknownWord> findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(Long userId, LocalDate today);
 
+    List<UnknownWord> findAllByBookIdIn(List<Long> bookIds);
+
     void deleteAllByUserId(Long userId);
 }

@@ -3,6 +3,7 @@ package com.finale.finale.book.service;
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
 import com.finale.finale.book.domain.*;
+import com.finale.finale.book.dto.response.CompletedBooksResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
@@ -16,16 +17,24 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("BookService 테스트")
@@ -48,6 +57,9 @@ class BookServiceTest {
 
     @Mock
     private com.finale.finale.book.repository.PhraseRepository phraseRepository;
+
+    @Mock
+    private UnknownWordRepository unknownWordRepository;
 
     @InjectMocks
     private BookService bookService;
@@ -153,5 +165,309 @@ class BookServiceTest {
         // Then
         verify(wordRepository).deleteAllBySentence(sentence);
         verify(phraseRepository).deleteAllBySentence(sentence);
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - 기본 조회 (최신순, 전체)")
+    void getCompletedBooksSuccess() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book1 = new Book(user, "Book 1", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book1, "id", 1L);
+        ReflectionTestUtils.setField(book1, "createdAt", LocalDateTime.now().minusDays(1));
+        ReflectionTestUtils.setField(book1, "isCompleted", true);
+
+        Book book2 = new Book(user, "Book 2", BookCategory.COMEDY, 700, 900);
+        ReflectionTestUtils.setField(book2, "id", 2L);
+        ReflectionTestUtils.setField(book2, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(book2, "isCompleted", true);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(List.of(book2, book1), pageable, 2);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(List.of(2L, 1L))).willReturn(Collections.emptyList());
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 0, 10, "latest", null, null
+        );
+
+        // Then
+        assertThat(response.content()).hasSize(2);
+        assertThat(response.content().get(0).id()).isEqualTo(2L);
+        assertThat(response.content().get(1).id()).isEqualTo(1L);
+        assertThat(response.totalElements()).isEqualTo(2);
+        assertThat(response.totalPages()).isEqualTo(1);
+        assertThat(response.currentPage()).isEqualTo(0);
+        assertThat(response.hasNext()).isFalse();
+        assertThat(response.hasPrevious()).isFalse();
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - 카테고리 필터링")
+    void getCompletedBooksWithCategoryFilter() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Adventure Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", 1L);
+        ReflectionTestUtils.setField(book, "isCompleted", true);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(List.of(book), pageable, 1);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(BookCategory.ADVENTURE), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 0, 10, "latest", "adventure", null
+        );
+
+        // Then
+        assertThat(response.content()).hasSize(1);
+        assertThat(response.content().get(0).category()).isEqualTo("adventure");
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - 북마크 필터링")
+    void getCompletedBooksWithBookmarkFilter() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Bookmarked Book", BookCategory.COMEDY, 700, 900);
+        ReflectionTestUtils.setField(book, "id", 1L);
+        ReflectionTestUtils.setField(book, "isCompleted", true);
+        ReflectionTestUtils.setField(book, "isBookmarked", true);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(List.of(book), pageable, 1);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(true), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 0, 10, "latest", null, true
+        );
+
+        // Then
+        assertThat(response.content()).hasSize(1);
+        assertThat(response.content().get(0).isBookmarked()).isTrue();
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - 정렬 (오래된순)")
+    void getCompletedBooksWithOldestSort() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book1 = new Book(user, "Old Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book1, "id", 1L);
+        ReflectionTestUtils.setField(book1, "createdAt", LocalDateTime.now().minusDays(5));
+        ReflectionTestUtils.setField(book1, "isCompleted", true);
+
+        Book book2 = new Book(user, "New Book", BookCategory.COMEDY, 700, 900);
+        ReflectionTestUtils.setField(book2, "id", 2L);
+        ReflectionTestUtils.setField(book2, "createdAt", LocalDateTime.now());
+        ReflectionTestUtils.setField(book2, "isCompleted", true);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.ASC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(List.of(book1, book2), pageable, 2);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(List.of(1L, 2L))).willReturn(Collections.emptyList());
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 0, 10, "oldest", null, null
+        );
+
+        // Then
+        assertThat(response.content()).hasSize(2);
+        assertThat(response.content().get(0).id()).isEqualTo(1L);
+        assertThat(response.content().get(1).id()).isEqualTo(2L);
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - UnknownWord 포함")
+    void getCompletedBooksWithUnknownWords() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Book with words", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", 1L);
+        ReflectionTestUtils.setField(book, "isCompleted", true);
+
+        UnknownWord word1 = new UnknownWord(
+                user, book, "example", "예시",
+                "This is an example.", "이것은 예시입니다.",
+                1L, 11, 7, LocalDate.now()
+        );
+        ReflectionTestUtils.setField(word1, "id", 1L);
+        ReflectionTestUtils.setField(word1, "createdAt", LocalDateTime.now());
+
+        UnknownWord word2 = new UnknownWord(
+                user, book, "test", "테스트",
+                "This is a test.", "이것은 테스트입니다.",
+                2L, 10, 4, LocalDate.now()
+        );
+        ReflectionTestUtils.setField(word2, "id", 2L);
+        ReflectionTestUtils.setField(word2, "createdAt", LocalDateTime.now());
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(List.of(book), pageable, 1);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(List.of(1L))).willReturn(List.of(word1, word2));
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 0, 10, "latest", null, null
+        );
+
+        // Then
+        assertThat(response.content()).hasSize(1);
+        assertThat(response.content().get(0).unknownWords()).hasSize(2);
+        assertThat(response.content().get(0).unknownWords().get(0).word()).isEqualTo("example");
+        assertThat(response.content().get(0).unknownWords().get(1).word()).isEqualTo("test");
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - 빈 목록 (완료한 책 없음)")
+    void getCompletedBooksEmpty() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(Collections.emptyList(), pageable, 0);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 0, 10, "latest", null, null
+        );
+
+        // Then
+        assertThat(response.content()).isEmpty();
+        assertThat(response.totalElements()).isEqualTo(0);
+        assertThat(response.totalPages()).isEqualTo(0);
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - 페이징 (2페이지)")
+    void getCompletedBooksWithPagination() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        List<Book> books = List.of(
+                createCompletedBook(user, 11L, "Book 11"),
+                createCompletedBook(user, 12L, "Book 12"),
+                createCompletedBook(user, 13L, "Book 13"),
+                createCompletedBook(user, 14L, "Book 14"),
+                createCompletedBook(user, 15L, "Book 15")
+        );
+
+        Pageable pageable = PageRequest.of(1, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(books, pageable, 15L);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(anyList())).willReturn(Collections.emptyList());
+
+        // When
+        CompletedBooksResponse response = bookService.getCompletedBooks(
+                userId, 1, 10, "latest", null, null
+        );
+
+        // Then
+        assertThat(response.currentPage()).isEqualTo(1);
+        assertThat(response.totalElements()).isEqualTo(15);
+        assertThat(response.totalPages()).isEqualTo(2);
+        assertThat(response.hasPrevious()).isTrue();
+        assertThat(response.hasNext()).isFalse();
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 실패 - 사용자 없음")
+    void getCompletedBooksUserNotFound() {
+        // Given
+        Long userId = 999L;
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.getCompletedBooks(
+                userId, 0, 10, "latest", null, null
+        ))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("getCompletedBooks 성공 - N+1 방지 확인 (일괄 조회)")
+    void getCompletedBooksNoNPlusOne() {
+        // Given
+        Long userId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book1 = new Book(user, "Book 1", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book1, "id", 1L);
+        ReflectionTestUtils.setField(book1, "isCompleted", true);
+
+        Book book2 = new Book(user, "Book 2", BookCategory.COMEDY, 700, 900);
+        ReflectionTestUtils.setField(book2, "id", 2L);
+        ReflectionTestUtils.setField(book2, "isCompleted", true);
+
+        Pageable pageable = PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Book> bookPage = new PageImpl<>(List.of(book1, book2), pageable, 2);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
+                .willReturn(bookPage);
+        given(unknownWordRepository.findAllByBookIdIn(List.of(1L, 2L))).willReturn(Collections.emptyList());
+
+        // When
+        bookService.getCompletedBooks(userId, 0, 10, "latest", null, null);
+
+        // Then
+        verify(unknownWordRepository).findAllByBookIdIn(List.of(1L, 2L));
+    }
+
+    private Book createCompletedBook(User user, Long id, String title) {
+        Book book = new Book(user, title, BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", id);
+        ReflectionTestUtils.setField(book, "isCompleted", true);
+        return book;
     }
 }
