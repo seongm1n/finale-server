@@ -21,11 +21,16 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
     List<Book> findAllByUser(User user);
 
-    @Query("SELECT b FROM Book b " +
-    "WHERE b.user = :user " +
-    "AND b.isCompleted = true " +
-    "AND (:category IS NULL OR b.category = :category) " +
-    "AND (:bookmarked IS NULL OR b.isBookmarked = :bookmarked)")
+    @Query(value = "SELECT b FROM Book b " +
+            "WHERE b.user = :user " +
+            "AND b.isCompleted = true " +
+            "AND (:category IS NULL OR b.category = :category) " +
+            "AND (:bookmarked IS NULL OR b.isBookmarked = :bookmarked)",
+            countQuery = "SELECT COUNT(b) FROM Book b " +
+            "WHERE b.user = :user " +
+            "AND b.isCompleted = true " +
+            "AND (:category IS NULL OR b.category = :category) " +
+            "AND (:bookmarked IS NULL OR b.isBookmarked = :bookmarked)")
     Page<Book> findCompletedBooks(
             @Param("user") User user,
             @Param("category") BookCategory category,

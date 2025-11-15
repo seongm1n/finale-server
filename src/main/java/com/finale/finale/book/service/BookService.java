@@ -166,7 +166,9 @@ public class BookService {
                 .map(Book::getId)
                 .toList();
 
-        List<UnknownWord> unknownWords = unknownWordRepository.findAllByBookIdIn(bookIds);
+        List<UnknownWord> unknownWords = bookIds.isEmpty()
+                ? Collections.emptyList()
+                : unknownWordRepository.findAllByBookIdIn(bookIds);
 
         Map<Long, List<UnknownWord>> unknownWordsByBook = unknownWords.stream()
                 .collect(Collectors.groupingBy(uw -> uw.getBook().getId()));

@@ -369,7 +369,6 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
-        given(unknownWordRepository.findAllByBookIdIn(Collections.emptyList())).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
