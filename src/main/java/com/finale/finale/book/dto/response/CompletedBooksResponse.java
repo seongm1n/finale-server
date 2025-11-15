@@ -31,6 +31,7 @@ public record CompletedBooksResponse(
             Long id,
             String word,
             String wordMeaning,
+            Long sentenceId,
             String sentence,
             String sentenceMeaning,
             Integer location,

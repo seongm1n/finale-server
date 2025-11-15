@@ -194,6 +194,7 @@ public class BookService {
                         .id(word.getId())
                         .word(word.getWord())
                         .wordMeaning(word.getWordMeaning())
+                        .sentenceId(word.getSentenceId())
                         .sentence(word.getSentence())
                         .sentenceMeaning(word.getSentenceMeaning())
                         .location(word.getLocation())
