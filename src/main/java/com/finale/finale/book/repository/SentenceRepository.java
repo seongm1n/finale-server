@@ -11,4 +11,6 @@ public interface SentenceRepository extends JpaRepository<Sentence, Long> {
     int countByBookId(Long id);
 
     List<Sentence> findAllByBook(Book book);
+
+    void deleteAllByBook(Book book);
 }

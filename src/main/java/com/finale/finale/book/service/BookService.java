@@ -246,6 +246,28 @@ public class BookService {
         );
     }
 
+    @Transactional
+    public void deleteBook(Long userId, Long bookId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
+
+        book.validateOwner(user);
+
+        List<Sentence> sentences = sentenceRepository.findAllByBook(book);
+
+        sentences.forEach(sentence -> {
+            wordRepository.deleteAllBySentence(sentence);
+            phraseRepository.deleteAllBySentence(sentence);
+        });
+
+        unknownWordRepository.deleteAllByBook(book);
+        sentenceRepository.deleteAllByBook(book);
+        quizRepository.deleteAllByBook(book);
+        bookRepository.delete(book);
+    }
+
     private CompletedBooksResponse.CompletedBook toCompletedBook(Book book, List<UnknownWord> unknownWords) {
         List<CompletedBooksResponse.UnknownWordResponse> unknownWordResponses = unknownWords.stream()
                 .map(word -> CompletedBooksResponse.UnknownWordResponse.builder()

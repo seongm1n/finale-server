@@ -84,6 +84,15 @@ public class BookController {
         return ResponseEntity.ok(response);
     }
 
+    @DeleteMapping("/{bookId}")
+    public ResponseEntity<Void> deleteBook(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long bookId
+    ) {
+        bookService.deleteBook(userId, bookId);
+        return ResponseEntity.noContent().build();
+    }
+
     private void validateSortParameter(String sort) {
         if (!sort.equals("latest") && !sort.equals("oldest")) {
             throw new CustomException(ErrorCode.INVALID_SORT_PARAMETER);
