@@ -4,6 +4,7 @@ import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
 import com.finale.finale.book.domain.*;
 import com.finale.finale.book.dto.response.BookmarkResponse;
+import com.finale.finale.book.dto.response.CompletedBookDetailResponse;
 import com.finale.finale.book.dto.response.CompletedBooksResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse.QuizResponse;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -142,7 +144,8 @@ public class BookService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
-        book.validateBookmarked(user);
+        book.validateOwner(user);
+        book.validateCompleted();
         book.toggleIsBookmarked();
 
         return new BookmarkResponse(book.getId(), book.getIsBookmarked());
@@ -185,6 +188,61 @@ public class BookService {
                 bookPage.getSize(),
                 bookPage.hasNext(),
                 bookPage.hasPrevious()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public CompletedBookDetailResponse getCompletedBookDetail(Long userId, Long bookId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        Book book = bookRepository.findById(bookId)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
+
+        book.validateOwner(user);
+        book.validateCompleted();
+
+        List<Sentence> sentences = sentenceRepository.findAllByBook(book);
+        List<Quiz> quizzes = quizRepository.findAllByBook(book);
+        List<UnknownWord> unknownWords = unknownWordRepository.findAllByBook(book);
+
+        return new CompletedBookDetailResponse(
+                bookId,
+                book.getTitle(),
+                book.getCategory().getValue(),
+                book.getAbilityScore(),
+                book.getCreatedAt(),
+                sentences.stream()
+                        .map(sentence -> new CompletedBookDetailResponse.SentenceResponse(
+                                sentence.getId(),
+                                sentence.getParagraphNumber(),
+                                sentence.getSentenceOrder(),
+                                sentence.getEnglishText(),
+                                sentence.getKoreanText()
+                        ))
+                        .toList(),
+                quizzes.stream()
+                        .map(quiz -> new CompletedBookDetailResponse.QuizResponse(
+                                quiz.getId(),
+                                quiz.getQuestion(),
+                                quiz.getCorrectAnswer(),
+                                quiz.getUserAnswer(),
+                                Objects.equals(quiz.getCorrectAnswer(), quiz.getUserAnswer())
+                        ))
+                        .toList(),
+                unknownWords.stream()
+                        .map(word -> new CompletedBookDetailResponse.UnknownWordResponse(
+                                word.getId(),
+                                word.getWord(),
+                                word.getWordMeaning(),
+                                word.getSentenceId(),
+                                word.getSentence(),
+                                word.getSentenceMeaning(),
+                                word.getLocation(),
+                                word.getLength(),
+                                word.getNextReviewDate(),
+                                word.getCreatedAt()
+                        ))
+                        .toList()
         );
     }
 

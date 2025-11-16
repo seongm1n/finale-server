@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record CompleteBookDetailResponse(
+public record CompletedBookDetailResponse(
         Long bookId,
         String title,
         String category,

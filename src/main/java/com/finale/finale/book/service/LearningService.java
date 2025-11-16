@@ -41,7 +41,8 @@ public class LearningService {
         Book book = bookRepository.findById(bookId)
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
-        book.validateComplete(user);
+        book.validateOwner(user);
+        book.validateNotCompleted();
 
         List<CompleteRequest.QuizAnswer> quizRequestList = request.quizAnswers();
         Map<Long, Quiz> quizMap = loadQuizMap(quizRequestList);
