@@ -72,15 +72,6 @@ public class Book {
         this.isCompleted = true;
     }
 
-    public void validateComplete(User user) {
-        if (!this.user.equals(user)) {
-            throw new CustomException(ErrorCode.BOOK_USER_MISMATCH);
-        }
-        if (isCompleted) {
-            throw new CustomException(ErrorCode.BOOK_ALREADY_COMPLETED);
-        }
-    }
-
     public void markAsProvision() {
         this.isProvision = true;
     }
@@ -93,13 +84,21 @@ public class Book {
         this.isBookmarked = !this.isBookmarked;
     }
 
-    public void validateBookmarked(User user) {
+    public void validateOwner(User user) {
         if (!this.user.equals(user)) {
             throw new CustomException(ErrorCode.BOOK_USER_MISMATCH);
         }
+    }
 
+    public void validateCompleted() {
         if (!isCompleted) {
             throw new CustomException(ErrorCode.BOOK_NOT_COMPLETED);
+        }
+    }
+
+    public void validateNotCompleted() {
+        if (isCompleted) {
+            throw new CustomException(ErrorCode.BOOK_ALREADY_COMPLETED);
         }
     }
 }
