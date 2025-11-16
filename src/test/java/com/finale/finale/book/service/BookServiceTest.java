@@ -35,6 +35,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
@@ -606,5 +607,157 @@ class BookServiceTest {
         assertThatThrownBy(() -> bookService.getCompletedBookDetail(userId, bookId))
                 .isInstanceOf(CustomException.class)
                 .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOOK_NOT_COMPLETED);
+    }
+
+    @Test
+    @DisplayName("deleteBook 성공 - 책과 모든 연관 데이터 삭제")
+    void deleteBookSuccess() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+
+        Sentence sentence1 = new Sentence(book, 1, 1, "Test sentence 1.", "테스트 문장 1.");
+        Sentence sentence2 = new Sentence(book, 1, 2, "Test sentence 2.", "테스트 문장 2.");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+        given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence1, sentence2));
+
+        // When
+        bookService.deleteBook(userId, bookId);
+
+        // Then
+        verify(wordRepository).deleteAllBySentence(sentence1);
+        verify(wordRepository).deleteAllBySentence(sentence2);
+        verify(phraseRepository).deleteAllBySentence(sentence1);
+        verify(phraseRepository).deleteAllBySentence(sentence2);
+        verify(unknownWordRepository).deleteAllByBook(book);
+        verify(sentenceRepository).deleteAllByBook(book);
+        verify(quizRepository).deleteAllByBook(book);
+        verify(bookRepository).delete(book);
+    }
+
+    @Test
+    @DisplayName("deleteBook 실패 - 사용자 없음")
+    void deleteBookUserNotFound() {
+        // Given
+        Long userId = 999L;
+        Long bookId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.deleteBook(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("deleteBook 실패 - 책 없음")
+    void deleteBookNotFound() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 999L;
+        User user = new User("test@example.com");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.deleteBook(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOOK_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("deleteBook 실패 - 다른 사용자의 책")
+    void deleteBookUserMismatch() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User owner = new User("owner@example.com");
+        ReflectionTestUtils.setField(owner, "id", 2L);
+        User other = new User("other@example.com");
+        ReflectionTestUtils.setField(other, "id", userId);
+
+        Book book = new Book(owner, "Owner's Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(other));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.deleteBook(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOOK_USER_MISMATCH);
+    }
+
+    @Test
+    @DisplayName("deleteBook 성공 - 완료되지 않은 책도 삭제 가능")
+    void deleteBookNotCompletedAllowed() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Not Completed Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+        ReflectionTestUtils.setField(book, "isCompleted", false);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+        given(sentenceRepository.findAllByBook(book)).willReturn(List.of());
+
+        // When
+        bookService.deleteBook(userId, bookId);
+
+        // Then
+        verify(bookRepository).delete(book);
+    }
+
+    @Test
+    @DisplayName("deleteBook 성공 - 연관 데이터 삭제 순서 검증")
+    void deleteBookVerifyDeletionOrder() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+
+        Sentence sentence = new Sentence(book, 1, 1, "Test.", "테스트.");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+        given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence));
+
+        // When
+        bookService.deleteBook(userId, bookId);
+
+        // Then - 순서대로 검증
+        var inOrder = inOrder(
+                wordRepository, phraseRepository,
+                unknownWordRepository, sentenceRepository, quizRepository,
+                bookRepository
+        );
+
+        // 1. Word, Phrase 먼저 삭제
+        inOrder.verify(wordRepository).deleteAllBySentence(sentence);
+        inOrder.verify(phraseRepository).deleteAllBySentence(sentence);
+
+        // 2. Book의 자식 엔티티들 삭제
+        inOrder.verify(unknownWordRepository).deleteAllByBook(book);
+        inOrder.verify(sentenceRepository).deleteAllByBook(book);
+        inOrder.verify(quizRepository).deleteAllByBook(book);
+
+        // 3. Book 마지막 삭제
+        inOrder.verify(bookRepository).delete(book);
     }
 }
