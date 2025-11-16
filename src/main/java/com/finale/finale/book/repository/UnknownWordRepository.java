@@ -16,4 +16,6 @@ public interface UnknownWordRepository extends JpaRepository<UnknownWord, Long> 
     List<UnknownWord> findAllByBook(Book book);
 
     void deleteAllByUserId(Long userId);
+
+    void deleteAllByBook(Book book);
 }
