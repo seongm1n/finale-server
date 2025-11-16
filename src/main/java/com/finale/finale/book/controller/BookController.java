@@ -2,10 +2,7 @@ package com.finale.finale.book.controller;
 
 import com.finale.finale.book.domain.BookCategory;
 import com.finale.finale.book.dto.request.CompleteRequest;
-import com.finale.finale.book.dto.response.BookmarkResponse;
-import com.finale.finale.book.dto.response.CompleteResponse;
-import com.finale.finale.book.dto.response.CompletedBooksResponse;
-import com.finale.finale.book.dto.response.StoryGenerationResponse;
+import com.finale.finale.book.dto.response.*;
 import com.finale.finale.book.service.BookService;
 import com.finale.finale.book.service.LearningService;
 import com.finale.finale.book.service.StoryGenerationService;
@@ -75,6 +72,15 @@ public class BookController {
         CompletedBooksResponse response = bookService.getCompletedBooks(
                 userId, page, size, sort, category, bookmarked
         );
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/completed/{bookId}")
+    public ResponseEntity<CompletedBookDetailResponse> getCompletedBookDetail(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long bookId
+    ) {
+        CompletedBookDetailResponse response = bookService.getCompletedBookDetail(userId, bookId);
         return ResponseEntity.ok(response);
     }
 

@@ -3,6 +3,7 @@ package com.finale.finale.book.service;
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
 import com.finale.finale.book.domain.*;
+import com.finale.finale.book.dto.response.CompletedBookDetailResponse;
 import com.finale.finale.book.dto.response.CompletedBooksResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.repository.BookRepository;
@@ -469,5 +470,141 @@ class BookServiceTest {
         ReflectionTestUtils.setField(book, "id", id);
         ReflectionTestUtils.setField(book, "isCompleted", true);
         return book;
+    }
+
+    @Test
+    @DisplayName("getCompletedBookDetail 성공 - 완료된 책 상세 조회")
+    void getCompletedBookDetailSuccess() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Test Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+        ReflectionTestUtils.setField(book, "isCompleted", true);
+        ReflectionTestUtils.setField(book, "createdAt", LocalDateTime.now());
+
+        Sentence sentence1 = new Sentence(book, 1, 1, "Hello world.", "안녕 세상.");
+        ReflectionTestUtils.setField(sentence1, "id", 1L);
+        Sentence sentence2 = new Sentence(book, 1, 2, "This is a test.", "이것은 테스트입니다.");
+        ReflectionTestUtils.setField(sentence2, "id", 2L);
+
+        Quiz quiz1 = new Quiz(book, "What is this?", true);
+        ReflectionTestUtils.setField(quiz1, "id", 1L);
+        ReflectionTestUtils.setField(quiz1, "userAnswer", true);
+
+        Quiz quiz2 = new Quiz(book, "Is this correct?", false);
+        ReflectionTestUtils.setField(quiz2, "id", 2L);
+        ReflectionTestUtils.setField(quiz2, "userAnswer", true);
+
+        UnknownWord word1 = new UnknownWord(
+                user, book, "hello", "안녕",
+                "Hello world.", "안녕 세상.",
+                1L, 0, 5, LocalDate.now()
+        );
+        ReflectionTestUtils.setField(word1, "id", 1L);
+        ReflectionTestUtils.setField(word1, "createdAt", LocalDateTime.now());
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+        given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence1, sentence2));
+        given(quizRepository.findAllByBook(book)).willReturn(List.of(quiz1, quiz2));
+        given(unknownWordRepository.findAllByBook(book)).willReturn(List.of(word1));
+
+        // When
+        CompletedBookDetailResponse response = bookService.getCompletedBookDetail(userId, bookId);
+
+        // Then
+        assertThat(response.bookId()).isEqualTo(bookId);
+        assertThat(response.title()).isEqualTo("Test Book");
+        assertThat(response.category()).isEqualTo("adventure");
+        assertThat(response.abilityScore()).isEqualTo(800);
+        assertThat(response.sentences()).hasSize(2);
+        assertThat(response.sentences().get(0).sentenceId()).isEqualTo(1L);
+        assertThat(response.sentences().get(0).englishText()).isEqualTo("Hello world.");
+        assertThat(response.quizzes()).hasSize(2);
+        assertThat(response.quizzes().get(0).isCorrect()).isTrue();
+        assertThat(response.quizzes().get(1).isCorrect()).isFalse();
+        assertThat(response.unknownWords()).hasSize(1);
+        assertThat(response.unknownWords().get(0).word()).isEqualTo("hello");
+    }
+
+    @Test
+    @DisplayName("getCompletedBookDetail 실패 - 사용자 없음")
+    void getCompletedBookDetailUserNotFound() {
+        // Given
+        Long userId = 999L;
+        Long bookId = 1L;
+        given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.getCompletedBookDetail(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.USER_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("getCompletedBookDetail 실패 - 책 없음")
+    void getCompletedBookDetailBookNotFound() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 999L;
+        User user = new User("test@example.com");
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.empty());
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.getCompletedBookDetail(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOOK_NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("getCompletedBookDetail 실패 - 다른 사용자의 책")
+    void getCompletedBookDetailUserMismatch() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User owner = new User("owner@example.com");
+        ReflectionTestUtils.setField(owner, "id", 2L);
+        User other = new User("other@example.com");
+        ReflectionTestUtils.setField(other, "id", userId);
+
+        Book book = new Book(owner, "Owner's Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+        ReflectionTestUtils.setField(book, "isCompleted", true);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(other));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.getCompletedBookDetail(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOOK_USER_MISMATCH);
+    }
+
+    @Test
+    @DisplayName("getCompletedBookDetail 실패 - 완료되지 않은 책")
+    void getCompletedBookDetailNotCompleted() {
+        // Given
+        Long userId = 1L;
+        Long bookId = 1L;
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", userId);
+
+        Book book = new Book(user, "Not Completed Book", BookCategory.ADVENTURE, 800, 1000);
+        ReflectionTestUtils.setField(book, "id", bookId);
+        ReflectionTestUtils.setField(book, "isCompleted", false);
+
+        given(userRepository.findById(userId)).willReturn(Optional.of(user));
+        given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
+
+        // When & Then
+        assertThatThrownBy(() -> bookService.getCompletedBookDetail(userId, bookId))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.BOOK_NOT_COMPLETED);
     }
 }
