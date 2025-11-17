@@ -29,6 +29,10 @@ public class User {
     private String nickname;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserImageCategory imageCategory;
+
+    @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private Role role = Role.USER;
 
@@ -65,6 +69,7 @@ public class User {
 
     public User(String email) {
         this.email = email;
+        this.imageCategory = UserImageCategory.getRandomCategory();
     }
 
     public boolean needsNickname() {
