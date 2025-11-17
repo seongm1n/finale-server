@@ -185,6 +185,7 @@ public class AuthService {
             user.getId(),
             user.getEmail(),
             user.getNickname(),
+            user.getImageCategory().name(),
             user.getRole(),
             user.getAbilityScore(),
             user.getBookReadCount(),
