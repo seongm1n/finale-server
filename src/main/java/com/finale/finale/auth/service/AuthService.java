@@ -103,6 +103,12 @@ public class AuthService {
     public UserResponse setNickname(Long userId, String nickname) {
         User user = userRepository.findById(userId)
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+        if (user.getNickname() != null && user.getNickname().equals(nickname)) {
+            throw new CustomException(ErrorCode.NICKNAME_SAME_AS_BEFORE);
+        }
+        if (userRepository.existsByNickname(nickname)) {
+            throw new CustomException(ErrorCode.NICKNAME_ALREADY_EXISTS);
+        }
         user.setNickname(nickname);
         userRepository.save(user);
 

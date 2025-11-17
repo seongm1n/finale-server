@@ -35,7 +35,9 @@ public enum ErrorCode {
     AI_RESPONSE_INVALID(HttpStatus.INTERNAL_SERVER_ERROR, "AI 서비스로부터 잘못된 응답을 받았습니다."),
 
     INVALID_SORT_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 파라미터입니다."),
-    INVALID_CATEGORY_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 파라미터입니다.");
+    INVALID_CATEGORY_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 파라미터입니다."),
+    NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
+    NICKNAME_SAME_AS_BEFORE(HttpStatus.BAD_REQUEST, "이전 닉네임과 동일합니다.");
 
     private final HttpStatus status;
     private final String message;
