@@ -225,13 +225,14 @@ public class AuthServiceTest {
     }
 
     @Test
-    @DisplayName("닉네임 설정")
+    @DisplayName("닉네임 설정 - 성공")
     void setNickname() {
         // Given
         User user = new User("test@example.com");
         ReflectionTestUtils.setField(user, "id", 1L);
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.existsByNickname("TestNick")).willReturn(false);
         given(userRepository.save(user)).willReturn(user);
 
         // When
@@ -240,7 +241,46 @@ public class AuthServiceTest {
         // Then
         assertThat(response.nickname()).isEqualTo("TestNick");
         assertThat(user.getNickname()).isEqualTo("TestNick");
+        verify(userRepository).existsByNickname("TestNick");
         verify(userRepository).save(user);
+    }
+
+    @Test
+    @DisplayName("닉네임 설정 - 중복된 닉네임")
+    void setNicknameDuplicate() {
+        // Given
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", 1L);
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+        given(userRepository.existsByNickname("ExistingNick")).willReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> authService.setNickname(1L, "ExistingNick"))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NICKNAME_ALREADY_EXISTS);
+
+        verify(userRepository).existsByNickname("ExistingNick");
+        verify(userRepository, never()).save(any(User.class));
+    }
+
+    @Test
+    @DisplayName("닉네임 설정 - 기존과 동일한 닉네임")
+    void setNicknameSameAsBefore() {
+        // Given
+        User user = new User("test@example.com");
+        ReflectionTestUtils.setField(user, "id", 1L);
+        user.setNickname("SameNick");
+
+        given(userRepository.findById(1L)).willReturn(Optional.of(user));
+
+        // When & Then
+        assertThatThrownBy(() -> authService.setNickname(1L, "SameNick"))
+                .isInstanceOf(CustomException.class)
+                .hasFieldOrPropertyWithValue("errorCode", ErrorCode.NICKNAME_SAME_AS_BEFORE);
+
+        verify(userRepository, never()).existsByNickname(any());
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
