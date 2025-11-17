@@ -25,7 +25,7 @@ public class User {
     private String email;
 
     @Setter
-    @Column(length = 100)
+    @Column(length = 100, unique = true)
     private String nickname;
 
     @Enumerated(EnumType.STRING)
