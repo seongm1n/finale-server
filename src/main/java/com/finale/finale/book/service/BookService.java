@@ -114,7 +114,8 @@ public class BookService {
                         unknownWord.getWord(),
                         unknownWord.getWordMeaning(),
                         unknownWord.getSentence(),
-                        unknownWord.getSentenceMeaning()
+                        unknownWord.getSentenceMeaning(),
+                        unknownWord.getReviewCount()
                 ))
                 .toList();
 
@@ -132,7 +133,8 @@ public class BookService {
                                                 w.getLocation(),
                                                 w.getLength()
                                         ))
-                                        .toList()
+                                        .toList(),
+                                phrase.getReviewCount()
                         ))
                         .toList();
 

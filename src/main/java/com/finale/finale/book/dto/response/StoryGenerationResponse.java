@@ -35,7 +35,8 @@ public record StoryGenerationResponse(
             String word,
             String wordMeaning,
             String sentence,
-            String sentenceMeaning
+            String sentenceMeaning,
+            Integer reviewCount
     ) {}
 
     public record UnknownPhraseResponse(
@@ -43,7 +44,8 @@ public record StoryGenerationResponse(
             String phraseMeaning,
             String sentence,
             String sentenceMeaning,
-            List<PhraseWordResponse> words
+            List<PhraseWordResponse> words,
+            Integer reviewCount
     ) {}
 
     public record PhraseWordResponse(
