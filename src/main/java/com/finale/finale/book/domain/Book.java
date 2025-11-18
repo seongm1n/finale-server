@@ -56,6 +56,14 @@ public class Book {
     )
     private List<UnknownWord> reviewWords = new ArrayList<>();
 
+    @ManyToMany
+    @JoinTable(
+            name = "book_review_phrases",
+            joinColumns = @JoinColumn(name = "book_id"),
+            inverseJoinColumns = @JoinColumn(name = "unknown_phrase_id")
+    )
+    private List<UnknownPhrase> reviewPhrases = new ArrayList<>();
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -78,6 +86,10 @@ public class Book {
 
     public void addReviewWord(List<UnknownWord> unknownWords) {
         this.reviewWords.addAll(unknownWords);
+    }
+
+    public void addReviewPhrase(List<UnknownPhrase> unknownPhrases) {
+        this.reviewPhrases.addAll(unknownPhrases);
     }
 
     public void toggleIsBookmarked() {

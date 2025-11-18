@@ -8,6 +8,7 @@ import com.finale.finale.auth.dto.request.RefreshRequest;
 import com.finale.finale.auth.dto.response.LoginResponse;
 import com.finale.finale.auth.dto.response.RefreshResponse;
 import com.finale.finale.auth.dto.response.UserResponse;
+import com.finale.finale.book.repository.*;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,12 +24,6 @@ import com.finale.finale.auth.oauth.OAuth2ValidatorFactory;
 import com.finale.finale.auth.repository.OAuthProviderRepository;
 import com.finale.finale.auth.repository.RefreshTokenRepository;
 import com.finale.finale.auth.repository.UserRepository;
-import com.finale.finale.book.repository.BookRepository;
-import com.finale.finale.book.repository.PhraseRepository;
-import com.finale.finale.book.repository.QuizRepository;
-import com.finale.finale.book.repository.SentenceRepository;
-import com.finale.finale.book.repository.UnknownWordRepository;
-import com.finale.finale.book.repository.WordRepository;
 
 import lombok.RequiredArgsConstructor;
 
@@ -46,6 +41,7 @@ public class AuthService {
     private final SentenceRepository sentenceRepository;
     private final QuizRepository quizRepository;
     private final UnknownWordRepository unknownWordRepository;
+    private final UnknownPhraseRepository unknownPhraseRepository;
     private final PhraseRepository phraseRepository;
     private final WordRepository wordRepository;
 
@@ -136,6 +132,7 @@ public class AuthService {
         }
 
         unknownWordRepository.deleteAllByUserId(userId);
+        unknownPhraseRepository.deleteAllByUserId(userId);
         bookRepository.deleteAll(books);
 
         oauthProviderRepository.findByUser(user)

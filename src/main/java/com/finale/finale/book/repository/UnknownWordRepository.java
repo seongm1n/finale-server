@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UnknownWordRepository extends JpaRepository<UnknownWord, Long> {
 
-    List<UnknownWord> findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(Long userId, LocalDate today);
+    List<UnknownWord> findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(Long userId, LocalDate today);
 
     List<UnknownWord> findAllByBookIdIn(List<Long> bookIds);
 

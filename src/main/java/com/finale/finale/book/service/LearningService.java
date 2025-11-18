@@ -2,15 +2,10 @@ package com.finale.finale.book.service;
 
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
-import com.finale.finale.book.domain.Book;
-import com.finale.finale.book.domain.Quiz;
-import com.finale.finale.book.domain.UnknownWord;
+import com.finale.finale.book.domain.*;
 import com.finale.finale.book.dto.request.CompleteRequest;
 import com.finale.finale.book.dto.response.CompleteResponse;
-import com.finale.finale.book.repository.BookRepository;
-import com.finale.finale.book.repository.QuizRepository;
-import com.finale.finale.book.repository.SentenceRepository;
-import com.finale.finale.book.repository.UnknownWordRepository;
+import com.finale.finale.book.repository.*;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -34,6 +29,7 @@ public class LearningService {
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
     private final SentenceRepository sentenceRepository;
+    private final UnknownPhraseRepository unknownPhraseRepository;
 
     public CompleteResponse complete(Long userId, Long bookId, CompleteRequest request) {
         User user = userRepository.findById(userId)
@@ -56,10 +52,14 @@ public class LearningService {
         int unknownWordCount = unknownWordRequestList.size();
         saveUnknownWord(user, book, unknownWordRequestList);
 
+        List<CompleteRequest.UnknownPhrase> unknownPhraseRequestList = request.unknownPhrases();
+        int unknownPhraseCount = unknownPhraseRequestList != null ? unknownPhraseRequestList.size() : 0;
+        saveUnknownPhrase(user, book, unknownPhraseRequestList);
+
         int beforeAbilityScore = user.getAbilityScore();
         int beforeTodaySentencesRead = user.getTodaySentencesReadCount();
         int beforeContinuousLearning = user.getContinuosLearning();
-        changeUserInformation(user, book, ansCount, unknownWordCount);
+        changeUserInformation(user, book, ansCount, unknownWordCount + unknownPhraseCount);
         if (user.getTodayBooksReadCount() == 1) {
             beforeTodaySentencesRead = 0;
         }
@@ -164,4 +164,31 @@ public class LearningService {
             unknownWordRepository.save(unknownWord);
         }
     }
+
+    private void saveUnknownPhrase(User user, Book book,
+                                   List<CompleteRequest.UnknownPhrase> unknownPhraseRequestList) {
+        if (unknownPhraseRequestList == null) return;
+
+        for (CompleteRequest.UnknownPhrase phraseRequest :
+                unknownPhraseRequestList) {
+            List<UnknownPhraseWord> words = phraseRequest.words().stream()
+                    .map(w -> new UnknownPhraseWord(w.word(), w.location(),
+                            w.length()))
+                    .toList();
+
+            UnknownPhrase unknownPhrase = new UnknownPhrase(
+                    user,
+                    book,
+                    phraseRequest.phrase(),
+                    phraseRequest.phraseMeaning(),
+                    phraseRequest.sentence(),
+                    phraseRequest.sentenceMeaning(),
+                    phraseRequest.sentenceId(),
+                    LocalDate.now().plusDays(UNKNOWN_WORD_FIRST_REVIEW_DAYS)
+            );
+            unknownPhrase.addWords(words);
+            unknownPhraseRepository.save(unknownPhrase);
+        }
+    }
+
 }

@@ -10,6 +10,7 @@ import com.finale.finale.book.dto.response.CompleteResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownPhraseRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
@@ -49,6 +50,9 @@ public class LearningServiceTest {
     @Mock
     private UnknownWordRepository unknownWordRepository;
 
+    @Mock
+    private UnknownPhraseRepository unknownPhraseRepository;
+
     @InjectMocks
     private LearningService learningService;
 
@@ -72,6 +76,7 @@ public class LearningServiceTest {
                         new CompleteRequest.QuizAnswer(1L, true),
                         new CompleteRequest.QuizAnswer(2L, false)
                 ),
+                List.of(),
                 List.of()
         );
 
@@ -95,7 +100,7 @@ public class LearningServiceTest {
     @DisplayName("책 완료 처리 - 사용자 없음")
     void completeUserNotFound() {
         // Given
-        CompleteRequest request = new CompleteRequest(List.of(), List.of());
+        CompleteRequest request = new CompleteRequest(List.of(), List.of(), List.of());
         given(userRepository.findById(999L)).willReturn(Optional.empty());
 
         // When & Then
@@ -111,7 +116,7 @@ public class LearningServiceTest {
         User user = new User("test@example.com");
         ReflectionTestUtils.setField(user, "id", 1L);
 
-        CompleteRequest request = new CompleteRequest(List.of(), List.of());
+        CompleteRequest request = new CompleteRequest(List.of(), List.of(), List.of());
         given(userRepository.findById(1L)).willReturn(Optional.of(user));
         given(bookRepository.findById(999L)).willReturn(Optional.empty());
 
@@ -141,6 +146,7 @@ public class LearningServiceTest {
                         new CompleteRequest.QuizAnswer(1L, true),  // 정답
                         new CompleteRequest.QuizAnswer(2L, true)   // 오답
                 ),
+                List.of(),
                 List.of()
         );
 
@@ -175,7 +181,8 @@ public class LearningServiceTest {
                                 "This is an example.", "이것은 예시입니다.",
                                 1L, 8, 7
                         )
-                )
+                ),
+                List.of()
         );
 
         given(userRepository.findById(1L)).willReturn(Optional.of(user));

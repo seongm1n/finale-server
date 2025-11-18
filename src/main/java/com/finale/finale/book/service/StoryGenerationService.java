@@ -5,10 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.finale.finale.auth.domain.User;
 import com.finale.finale.auth.repository.UserRepository;
 import com.finale.finale.book.domain.*;
-import com.finale.finale.book.repository.BookRepository;
-import com.finale.finale.book.repository.QuizRepository;
-import com.finale.finale.book.repository.SentenceRepository;
-import com.finale.finale.book.repository.UnknownWordRepository;
+import com.finale.finale.book.repository.*;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import jakarta.transaction.Transactional;
@@ -36,6 +33,7 @@ public class StoryGenerationService {
     private final QuizRepository quizRepository;
     private final WordMeaningService wordMeaningService;
     private final RedisLockService redisLockService;
+    private final UnknownPhraseRepository unknownPhraseRepository;
 
     @Async
     @Transactional
@@ -55,11 +53,16 @@ public class StoryGenerationService {
                 return;
             }
 
-            List<UnknownWord> unknownWords = unknownWordRepository.findTop10ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
+            List<UnknownWord> unknownWords = unknownWordRepository
+                    .findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
             unknownWords.forEach(UnknownWord::nextReviewSetting);
 
+            List<UnknownPhrase> unknownPhrases = unknownPhraseRepository
+                    .findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
+            unknownPhrases.forEach(UnknownPhrase::nextReviewSetting);
+
             BookCategory category = BookCategory.random();
-            String promptText = createPrompt(unknownWords, user, category);
+            String promptText = createPrompt(unknownWords, unknownPhrases, user, category);
 
             String response = chatClient.prompt()
                     .user(promptText)
@@ -77,6 +80,7 @@ public class StoryGenerationService {
                     totalWords
             );
             book.addReviewWord(unknownWords);
+            book.addReviewPhrase(unknownPhrases);
             bookRepository.save(book);
 
             List<Quiz> quizzes = parseQuizzes(response, book);
@@ -98,7 +102,7 @@ public class StoryGenerationService {
         sentenceRepository.saveAll(sentences);
     }
 
-    private String createPrompt(List<UnknownWord> unknownWords, User user, BookCategory category) {
+    private String createPrompt(List<UnknownWord> unknownWords, List<UnknownPhrase> unknownPhrases, User user, BookCategory category) {
         Random random = new Random();
         boolean quiz1Answer = random.nextBoolean();
         boolean quiz2Answer = random.nextBoolean();
@@ -106,13 +110,23 @@ public class StoryGenerationService {
         StringBuilder vocabSection = new StringBuilder();
 
         if (!unknownWords.isEmpty()) {
-            if (!vocabSection.isEmpty()) vocabSection.append("\n");
             vocabSection.append("REVIEW WORDS (use these words naturally in the story):\n");
             vocabSection.append("IMPORTANT: The example sentences below are for REFERENCE ONLY. ");
             vocabSection.append("You MUST create completely DIFFERENT sentences with creative and varied contexts. ");
             vocabSection.append("DO NOT copy or closely imitate the example sentences.\n\n");
             for (UnknownWord uw : unknownWords) {
                 vocabSection.append(String.format("- %s (reference example: \"%s\")\n", uw.getWord(), uw.getSentence()));
+            }
+        }
+
+        if (!unknownPhrases.isEmpty()) {
+            if (!vocabSection.isEmpty()) vocabSection.append("\n");
+            vocabSection.append("REVIEW PHRASES (use these phrases naturally in the story):\n");
+            vocabSection.append("IMPORTANT: The example sentences below are for REFERENCE ONLY. ");
+            vocabSection.append("You MUST create completely DIFFERENT sentences with creative and varied contexts. ");
+            vocabSection.append("DO NOT copy or closely imitate the example sentences.\n\n");
+            for (UnknownPhrase up : unknownPhrases) {
+                vocabSection.append(String.format("- %s (reference example: \"%s\")\n", up.getPhrase(), up.getSentence()));
             }
         }
 

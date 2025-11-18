@@ -19,6 +19,7 @@ import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.PhraseRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownPhraseRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.book.repository.WordRepository;
 import com.finale.finale.config.JwtTokenProvider;
@@ -76,6 +77,9 @@ public class AuthServiceTest {
 
     @Mock
     private UnknownWordRepository unknownWordRepository;
+
+    @Mock
+    private UnknownPhraseRepository unknownPhraseRepository;
 
     @Mock
     private PhraseRepository phraseRepository;

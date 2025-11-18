@@ -8,12 +8,14 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "unknown_words")
+@Table(name = "unknown_phrases")
 @Getter
 @NoArgsConstructor
-public class UnknownWord extends ReviewableItem {
+public class UnknownPhrase extends ReviewableItem {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,10 +30,10 @@ public class UnknownWord extends ReviewableItem {
     private Book book;
 
     @Column(nullable = false)
-    private String word;
+    private String phrase;
 
-    @Column(name = "word_meaning", nullable = false)
-    private String wordMeaning;
+    @Column(name = "phrase_meaning", nullable = false)
+    private String phraseMeaning;
 
     @Column(nullable = false)
     private String sentence;
@@ -42,26 +44,26 @@ public class UnknownWord extends ReviewableItem {
     @Column(name = "sentence_id", nullable = false)
     private Long sentenceId;
 
-    @Column(nullable = false)
-    private Integer location;
-
-    @Column(nullable = false)
-    private Integer length;
+    @OneToMany(mappedBy = "unknownPhrase", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UnknownPhraseWord> words = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-    public UnknownWord(User user, Book book, String word, String wordMeaning, String sentence, String sentenceMeaning, Long sentenceId, int location, int length, LocalDate nextReviewDate) {
+    public UnknownPhrase(User user, Book book, String phrase, String phraseMeaning, String sentence, String sentenceMeaning, Long sentenceId, LocalDate nextReviewDate) {
         this.user = user;
         this.book = book;
-        this.word = word;
-        this.wordMeaning = wordMeaning;
+        this.phrase = phrase;
+        this.phraseMeaning = phraseMeaning;
         this.sentence = sentence;
         this.sentenceMeaning = sentenceMeaning;
         this.sentenceId = sentenceId;
-        this.location = location;
-        this.length = length;
         setNextReviewDate(nextReviewDate);
+    }
+
+    public void addWords(List<UnknownPhraseWord> words) {
+        this.words = words;
+        words.forEach(w -> w.setUnknownPhrase(this));
     }
 }

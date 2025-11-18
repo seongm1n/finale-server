@@ -14,7 +14,8 @@ public record CompletedBookDetailResponse(
         LocalDateTime completedAt,
         List<SentenceResponse> sentences,
         List<QuizResponse> quizzes,
-        List<UnknownWordResponse> unknownWords
+        List<UnknownWordResponse> unknownWords,
+        List<UnknownPhraseResponse> unknownPhrases
 ) {
 
     @Builder
@@ -48,4 +49,24 @@ public record CompletedBookDetailResponse(
             LocalDate nextReviewDate,
             LocalDateTime createdAt
     ) {}
+
+    @Builder
+    public record UnknownPhraseResponse(
+            Long id,
+            String phrase,
+            String phraseMeaning,
+            Long sentenceId,
+            String sentence,
+            String sentenceMeaning,
+            List<PhraseWordResponse> words,
+            LocalDate nextReviewDate,
+            LocalDateTime createdAt
+    ) {}
+
+    public record PhraseWordResponse(
+            String word,
+            Integer location,
+            Integer length
+    ) {}
+
 }
