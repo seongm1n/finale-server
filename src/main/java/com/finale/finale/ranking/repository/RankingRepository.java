@@ -67,6 +67,16 @@ public class RankingRepository {
         }
     }
 
+    public Double getScore(LocalDate weekStart, Long userId) {
+        RScoredSortedSet<String> scoredSet = redissonClient.getScoredSortedSet(getScoreKey(weekStart));
+        return scoredSet.getScore(userId.toString());
+    }
+
+    public Collection<ScoredEntry<String>> getRankRangeEntries(LocalDate weekStart, int startIndex, int endIndex) {
+        RScoredSortedSet<String> scoredSet = redissonClient.getScoredSortedSet(getScoreKey(weekStart));
+        return scoredSet.entryRangeReversed(startIndex, endIndex);
+    }
+
     private String getScoreKey(LocalDate weekStart) {
         return "ranking:score:" + weekStart;
     }

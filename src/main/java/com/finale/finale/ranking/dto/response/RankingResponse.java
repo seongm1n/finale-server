@@ -1,4 +1,4 @@
-package com.finale.finale.ranking.dto;
+package com.finale.finale.ranking.dto.response;
 
 import java.time.LocalDate;
 import java.util.List;
