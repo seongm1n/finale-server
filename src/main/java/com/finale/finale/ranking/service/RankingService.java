@@ -1,6 +1,12 @@
 package com.finale.finale.ranking.service;
 
-import com.finale.finale.ranking.dto.RankingResponse;
+import com.finale.finale.auth.domain.User;
+import com.finale.finale.auth.repository.UserRepository;
+import com.finale.finale.exception.CustomException;
+import com.finale.finale.exception.ErrorCode;
+import com.finale.finale.ranking.dto.request.RankingResultRequest;
+import com.finale.finale.ranking.dto.response.RankingResponse;
+import com.finale.finale.ranking.dto.response.RankingResultResponse;
 import com.finale.finale.ranking.repository.RankingRepository;
 import lombok.RequiredArgsConstructor;
 import org.redisson.client.protocol.ScoredEntry;
@@ -20,6 +26,7 @@ import java.util.Map;
 public class RankingService {
 
     private final RankingRepository rankingRepository;
+    private final UserRepository userRepository;
 
     public RankingResponse getRankings(Long userId) {
         LocalDate weekStart = getWeekStart();
@@ -45,11 +52,11 @@ public class RankingService {
             String userInfo = userInfos.get(userIdStr);
 
             String nickname = "Unknown";
-            String profileImage = "DEFAULT";
+            String profileImage = "sf";
             if (userInfo != null) {
                 String[] parts = userInfo.split(":");
                 nickname = parts[0];
-                profileImage = parts.length > 1 ? parts[1] : "DEFAULT";
+                profileImage = parts.length > 1 ? parts[1] : "sf";
             }
 
             rankings.add(new RankingResponse.RankingEntry(
@@ -70,6 +77,91 @@ public class RankingService {
                 totalParticipants,
                 rankings
         );
+    }
+
+    public RankingResultResponse processResult(Long userId, RankingResultRequest request) {
+        LocalDate weekStart = getWeekStart();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Double currentScoreDouble = rankingRepository.getScore(weekStart, userId);
+        int oldScore = currentScoreDouble != null ? currentScoreDouble.intValue() : 0;
+
+        Integer startRank = rankingRepository.getMyRank(weekStart, userId);
+        int totalParticipants = rankingRepository.getTotalParticipants(weekStart);
+
+        if (startRank == null) {
+            startRank = totalParticipants + 1;
+        }
+
+        int gainedScore = request.gainedScore();
+        int newScore = oldScore + gainedScore;
+
+        rankingRepository.addScore(
+                weekStart,
+                userId,
+                gainedScore,
+                user.getNickname(),
+                user.getImageCategory().name()
+        );
+
+        Integer endRank = rankingRepository.getMyRank(weekStart, userId);
+        if (endRank == null) {
+            endRank = 1;
+        }
+
+        int rangeStart = Math.max(1, endRank - 3);
+        int rangeEnd = Math.min(totalParticipants, startRank + 3);
+
+        List<RankingResultResponse.RankingResultEntry> rankingRange = getRankRange(weekStart, rangeStart, rangeEnd);
+
+        return new RankingResultResponse(
+                startRank,
+                endRank,
+                startRank - endRank,
+                oldScore,
+                newScore,
+                rangeStart,
+                rangeEnd,
+                rankingRange
+        );
+    }
+
+    private List<RankingResultResponse.RankingResultEntry> getRankRange(LocalDate weekStart, int rangeStart, int rangeEnd) {
+        Collection<ScoredEntry<String>> entries = rankingRepository.getRankRangeEntries(
+                weekStart,
+                rangeStart - 1,
+                rangeEnd - 1
+        );
+
+        if (entries.isEmpty()) {
+            return List.of();
+        }
+
+        List<String> userIds = entries.stream()
+                .map(ScoredEntry::getValue)
+                .toList();
+
+        Map<String, String> userInfos = rankingRepository.getUserInfos(weekStart, userIds);
+
+        List<RankingResultResponse.RankingResultEntry> result = new ArrayList<>();
+        int rank = rangeStart;
+
+        for (ScoredEntry<String> entry : entries) {
+            String odai = entry.getValue();
+            String[] info = userInfos.getOrDefault(odai, "Unknown:sf").split(":");
+
+            result.add(new RankingResultResponse.RankingResultEntry(
+                    rank++,
+                    Long.parseLong(odai),
+                    info[0],
+                    entry.getScore().intValue(),
+                    info.length > 1 ? info[1] : "sf"
+            ));
+        }
+
+        return result;
     }
 
     public void updateUserInfo(Long userId, String nickname, String profileImage) {
