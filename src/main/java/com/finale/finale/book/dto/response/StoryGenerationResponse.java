@@ -12,6 +12,7 @@ public record StoryGenerationResponse(
         List<SentenceResponse> sentences,
         List<QuizResponse> quizzes,
         List<UnknownWordResponse> unknownWordList,
+        List<UnknownPhraseResponse> unknownPhraseList,
         LocalDateTime createdAt
 ) {
     public record SentenceResponse(
@@ -36,6 +37,21 @@ public record StoryGenerationResponse(
             String sentence,
             String sentenceMeaning
     ) {}
+
+    public record UnknownPhraseResponse(
+            String phrase,
+            String phraseMeaning,
+            String sentence,
+            String sentenceMeaning,
+            List<PhraseWordResponse> words
+    ) {}
+
+    public record PhraseWordResponse(
+            String word,
+            Integer location,
+            Integer length
+    ) {}
+
 
     public record WordResponse(
             String word,

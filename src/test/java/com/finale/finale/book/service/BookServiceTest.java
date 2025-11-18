@@ -9,6 +9,7 @@ import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.repository.BookRepository;
 import com.finale.finale.book.repository.QuizRepository;
 import com.finale.finale.book.repository.SentenceRepository;
+import com.finale.finale.book.repository.UnknownPhraseRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
@@ -62,6 +63,9 @@ class BookServiceTest {
 
     @Mock
     private UnknownWordRepository unknownWordRepository;
+
+    @Mock
+    private UnknownPhraseRepository unknownPhraseRepository;
 
     @InjectMocks
     private BookService bookService;
@@ -194,6 +198,7 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(List.of(2L, 1L))).willReturn(Collections.emptyList());
+        given(unknownPhraseRepository.findAllByBookIdIn(List.of(2L, 1L))).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
@@ -230,6 +235,7 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(BookCategory.ADVENTURE), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
+        given(unknownPhraseRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
@@ -261,6 +267,7 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(true), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
+        given(unknownPhraseRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
@@ -297,6 +304,7 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(List.of(1L, 2L))).willReturn(Collections.emptyList());
+        given(unknownPhraseRepository.findAllByBookIdIn(List.of(1L, 2L))).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
@@ -344,6 +352,7 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(List.of(1L))).willReturn(List.of(word1, word2));
+        given(unknownPhraseRepository.findAllByBookIdIn(List.of(1L))).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
@@ -406,6 +415,7 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(anyList())).willReturn(Collections.emptyList());
+        given(unknownPhraseRepository.findAllByBookIdIn(anyList())).willReturn(Collections.emptyList());
 
         // When
         CompletedBooksResponse response = bookService.getCompletedBooks(
@@ -458,12 +468,14 @@ class BookServiceTest {
         given(bookRepository.findCompletedBooks(eq(user), eq(null), eq(null), any(Pageable.class)))
                 .willReturn(bookPage);
         given(unknownWordRepository.findAllByBookIdIn(List.of(1L, 2L))).willReturn(Collections.emptyList());
+        given(unknownPhraseRepository.findAllByBookIdIn(List.of(1L, 2L))).willReturn(Collections.emptyList());
 
         // When
         bookService.getCompletedBooks(userId, 0, 10, "latest", null, null);
 
         // Then
         verify(unknownWordRepository).findAllByBookIdIn(List.of(1L, 2L));
+        verify(unknownPhraseRepository).findAllByBookIdIn(List.of(1L, 2L));
     }
 
     private Book createCompletedBook(User user, Long id, String title) {
@@ -513,6 +525,7 @@ class BookServiceTest {
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence1, sentence2));
         given(quizRepository.findAllByBook(book)).willReturn(List.of(quiz1, quiz2));
         given(unknownWordRepository.findAllByBook(book)).willReturn(List.of(word1));
+        given(unknownPhraseRepository.findAllByBook(book)).willReturn(Collections.emptyList());
 
         // When
         CompletedBookDetailResponse response = bookService.getCompletedBookDetail(userId, bookId);
@@ -637,6 +650,7 @@ class BookServiceTest {
         verify(phraseRepository).deleteAllBySentence(sentence1);
         verify(phraseRepository).deleteAllBySentence(sentence2);
         verify(unknownWordRepository).deleteAllByBook(book);
+        verify(unknownPhraseRepository).deleteAllByBook(book);
         verify(sentenceRepository).deleteAllByBook(book);
         verify(quizRepository).deleteAllByBook(book);
         verify(bookRepository).delete(book);
@@ -744,7 +758,7 @@ class BookServiceTest {
         // Then - 순서대로 검증
         var inOrder = inOrder(
                 wordRepository, phraseRepository,
-                unknownWordRepository, sentenceRepository, quizRepository,
+                unknownWordRepository, unknownPhraseRepository, sentenceRepository, quizRepository,
                 bookRepository
         );
 
@@ -754,6 +768,7 @@ class BookServiceTest {
 
         // 2. Book의 자식 엔티티들 삭제
         inOrder.verify(unknownWordRepository).deleteAllByBook(book);
+        inOrder.verify(unknownPhraseRepository).deleteAllByBook(book);
         inOrder.verify(sentenceRepository).deleteAllByBook(book);
         inOrder.verify(quizRepository).deleteAllByBook(book);
 

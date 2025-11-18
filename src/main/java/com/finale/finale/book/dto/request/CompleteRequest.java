@@ -7,7 +7,9 @@ public record CompleteRequest(
         @NotNull(message = "퀴즈 답변 목록은 필수 입력 값입니다.")
         List<QuizAnswer> quizAnswers,
 
-        List<UnknownWord> unknownWords
+        List<UnknownWord> unknownWords,
+
+        List<UnknownPhrase> unknownPhrases
 ) {
     public record QuizAnswer(
             @NotNull(message = "퀴즈 ID는 필수 입력 값입니다.")
@@ -39,4 +41,36 @@ public record CompleteRequest(
             @NotNull(message = "단어 길이는 필수 입력 값입니다.")
             int length
     ) {}
+
+    public record UnknownPhrase(
+            @NotNull(message = "숙어는 필수 입력 값입니다.")
+            String phrase,
+
+            @NotNull(message = "숙어 뜻은 필수 입력 값입니다.")
+            String phraseMeaning,
+
+            @NotNull(message = "문장은 필수 입력 값입니다.")
+            String sentence,
+
+            @NotNull(message = "문장 뜻은 필수 입력 값입니다.")
+            String sentenceMeaning,
+
+            @NotNull(message = "문장 ID는 필수 입력 값입니다.")
+            Long sentenceId,
+
+            @NotNull(message = "단어 목록은 필수 입력 값입니다.")
+            List<PhraseWord> words
+    ) {}
+
+    public record PhraseWord(
+            @NotNull(message = "단어는 필수 입력 값입니다.")
+            String word,
+
+            @NotNull(message = "단어 위치는 필수 입력 값입니다.")
+            int location,
+
+            @NotNull(message = "단어 길이는 필수 입력 값입니다.")
+            int length
+    ) {}
+
 }
