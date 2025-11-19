@@ -15,6 +15,7 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 
 import java.io.IOException;
 
@@ -30,6 +31,9 @@ class JwtAuthenticationFilterTest {
 
     @Mock
     private FilterChain filterChain;
+
+    @Mock
+    private AuthenticationEntryPoint authenticationEntryPoint;
 
     @InjectMocks
     private JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -126,7 +130,9 @@ class JwtAuthenticationFilterTest {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         assertThat(authentication).isNull();
 
-        verify(filterChain, times(1)).doFilter(request, response);
+        verify(authenticationEntryPoint, times(1))
+                .commence(eq(request), eq(response), any());
+        verify(filterChain, never()).doFilter(request, response);
     }
 
     @Test

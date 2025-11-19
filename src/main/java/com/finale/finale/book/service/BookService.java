@@ -7,24 +7,20 @@ import com.finale.finale.book.dto.response.BookmarkResponse;
 import com.finale.finale.book.dto.response.CompletedBookDetailResponse;
 import com.finale.finale.book.dto.response.CompletedBooksResponse;
 import com.finale.finale.book.dto.response.StoryGenerationResponse;
-import com.finale.finale.book.dto.response.StoryGenerationResponse.QuizResponse;
-import com.finale.finale.book.dto.response.StoryGenerationResponse.SentenceResponse;
-import com.finale.finale.book.dto.response.StoryGenerationResponse.UnknownWordResponse;
 import com.finale.finale.book.repository.*;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,124 +35,23 @@ public class BookService {
     private final PhraseRepository phraseRepository;
     private final UnknownWordRepository unknownWordRepository;
     private final UnknownPhraseRepository unknownPhraseRepository;
+    private final StoryResponseAssembler storyResponseAssembler;
+    private final CompletedBooksAssembler completedBooksAssembler;
+    private final CompletedBookDetailAssembler completedBookDetailAssembler;
 
     @Transactional
     public StoryGenerationResponse getNewStory(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-        Book book = bookRepository.findFirstByUserAndIsProvisionFalseWithReviewWords(user)
-                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_READY));
+        User user = findUser(userId);
+        Book book = findReadyBook(user);
 
         List<Sentence> sentenceEntities = sentenceRepository.findAllByBook(book);
 
-        List<Word> allWords = wordRepository.findAllBySentenceIn(sentenceEntities);
-        List<Phrase> allPhrases = phraseRepository.findAllBySentenceIn(sentenceEntities);
+        StoryData storyData = loadStoryData(book, sentenceEntities);
+        StoryGenerationResponse response = storyResponseAssembler.toResponse(book, storyData);
 
-        Map<Long, List<Word>> wordsBySentence = allWords.stream()
-                .collect(Collectors.groupingBy(w -> w.getSentence().getId()));
-        Map<Long, List<Phrase>> phrasesBySentence = allPhrases.stream()
-                .collect(Collectors.groupingBy(p -> p.getSentence().getId()));
+        finalizeProvision(book, sentenceEntities);
 
-        List<SentenceResponse> sentences = sentenceEntities.stream()
-                .map(sentence -> {
-                    List<StoryGenerationResponse.WordResponse> words =
-                            wordsBySentence.getOrDefault(sentence.getId(), Collections.emptyList())
-                                    .stream()
-                                    .map(word -> new StoryGenerationResponse.WordResponse(
-                                            word.getWord(),
-                                            word.getMeaning(),
-                                            word.getLocation(),
-                                            word.getLength()
-                                    ))
-                                    .toList();
-
-                    List<StoryGenerationResponse.PhraseResponse> phrases =
-                            phrasesBySentence.getOrDefault(sentence.getId(), Collections.emptyList())
-                                    .stream()
-                                    .map(phrase -> {
-                                        List<StoryGenerationResponse.ExpressionResponse> expressions = phrase.getExpression().stream()
-                                                .map(phraseWord -> new StoryGenerationResponse.ExpressionResponse(
-                                                        phraseWord.getWord(),
-                                                        phraseWord.getLocation(),
-                                                        phraseWord.getLength()
-                                                ))
-                                                .toList();
-
-                                        return new StoryGenerationResponse.PhraseResponse(
-                                                phrase.getMeaning(),
-                                                expressions
-                                        );
-                                    })
-                                    .toList();
-
-                    return new SentenceResponse(
-                            sentence.getId(),
-                            sentence.getParagraphNumber(),
-                            sentence.getSentenceOrder(),
-                            sentence.getEnglishText(),
-                            sentence.getKoreanText(),
-                            words,
-                            phrases
-                    );
-                })
-                .toList();
-
-        List<QuizResponse> quizzes = quizRepository.findAllByBook(book).stream()
-                .map(quiz -> new QuizResponse(
-                        quiz.getId(),
-                        quiz.getQuestion(),
-                        quiz.getCorrectAnswer()
-                ))
-                .toList();
-
-        List<UnknownWordResponse> unknownWords = book.getReviewWords().stream()
-                .map(unknownWord -> new UnknownWordResponse(
-                        unknownWord.getWord(),
-                        unknownWord.getWordMeaning(),
-                        unknownWord.getSentence(),
-                        unknownWord.getSentenceMeaning(),
-                        unknownWord.getReviewCount()
-                ))
-                .toList();
-
-        List<StoryGenerationResponse.UnknownPhraseResponse> unknownPhrases =
-                book.getReviewPhrases().stream()
-                        .map(phrase -> new StoryGenerationResponse.UnknownPhraseResponse(
-                                phrase.getPhrase(),
-                                phrase.getPhraseMeaning(),
-                                phrase.getSentence(),
-                                phrase.getSentenceMeaning(),
-                                phrase.getWords().stream()
-                                        .map(w -> new
-                                                StoryGenerationResponse.PhraseWordResponse(
-                                                w.getWord(),
-                                                w.getLocation(),
-                                                w.getLength()
-                                        ))
-                                        .toList(),
-                                phrase.getReviewCount()
-                        ))
-                        .toList();
-
-        book.markAsProvision();
-
-        sentenceEntities.forEach(sentence -> {
-            wordRepository.deleteAllBySentence(sentence);
-            phraseRepository.deleteAllBySentence(sentence);
-        });
-
-        return new StoryGenerationResponse(
-                book.getId(),
-                book.getTitle(),
-                book.getCategory().getValue(),
-                book.getAbilityScore(),
-                book.getTotalWordCount(),
-                sentences,
-                quizzes,
-                unknownWords,
-                unknownPhrases,
-                book.getCreatedAt()
-        );
+        return response;
     }
 
     @Transactional
@@ -206,13 +101,11 @@ public class BookService {
                 unknownPhrases.stream()
                         .collect(Collectors.groupingBy(up -> up.getBook().getId()));
 
-        List<CompletedBooksResponse.CompletedBook> content = bookPage.getContent().stream()
-                .map(book -> toCompletedBook(
-                        book,
-                        unknownWordsByBook.getOrDefault(book.getId(), Collections.emptyList()),
-                        unknownPhrasesByBook.getOrDefault(book.getId(), Collections.emptyList())
-                ))
-                .toList();
+        List<CompletedBooksResponse.CompletedBook> content = completedBooksAssembler.toCompletedBooks(
+                bookPage.getContent(),
+                unknownWordsByBook,
+                unknownPhrasesByBook
+        );
 
         return new CompletedBooksResponse(
                 content,
@@ -240,64 +133,7 @@ public class BookService {
         List<UnknownWord> unknownWords = unknownWordRepository.findAllByBook(book);
         List<UnknownPhrase> unknownPhrases = unknownPhraseRepository.findAllByBook(book);
 
-        return new CompletedBookDetailResponse(
-                bookId,
-                book.getTitle(),
-                book.getCategory().getValue(),
-                book.getAbilityScore(),
-                book.getCreatedAt(), // TODO: completedAt 필드로 수정 필요
-                sentences.stream()
-                        .map(sentence -> new CompletedBookDetailResponse.SentenceResponse(
-                                sentence.getId(),
-                                sentence.getParagraphNumber(),
-                                sentence.getSentenceOrder(),
-                                sentence.getEnglishText(),
-                                sentence.getKoreanText()
-                        ))
-                        .toList(),
-                quizzes.stream()
-                        .map(quiz -> new CompletedBookDetailResponse.QuizResponse(
-                                quiz.getId(),
-                                quiz.getQuestion(),
-                                quiz.getCorrectAnswer(),
-                                quiz.getUserAnswer(),
-                                Objects.equals(quiz.getCorrectAnswer(), quiz.getUserAnswer())
-                        ))
-                        .toList(),
-                unknownWords.stream()
-                        .map(word -> new CompletedBookDetailResponse.UnknownWordResponse(
-                                word.getId(),
-                                word.getWord(),
-                                word.getWordMeaning(),
-                                word.getSentenceId(),
-                                word.getSentence(),
-                                word.getSentenceMeaning(),
-                                word.getLocation(),
-                                word.getLength(),
-                                word.getNextReviewDate(),
-                                word.getCreatedAt()
-                        ))
-                        .toList(),
-                unknownPhrases.stream()
-                        .map(phrase -> new CompletedBookDetailResponse.UnknownPhraseResponse(
-                                phrase.getId(),
-                                phrase.getPhrase(),
-                                phrase.getPhraseMeaning(),
-                                phrase.getSentenceId(),
-                                phrase.getSentence(),
-                                phrase.getSentenceMeaning(),
-                                phrase.getWords().stream()
-                                        .map(w -> new CompletedBookDetailResponse.PhraseWordResponse(
-                                                w.getWord(),
-                                                w.getLocation(),
-                                                w.getLength()
-                                        ))
-                                        .toList(),
-                                phrase.getNextReviewDate(),
-                                phrase.getCreatedAt()
-                        ))
-                        .toList()
-        );
+        return completedBookDetailAssembler.toResponse(book, sentences, quizzes, unknownWords, unknownPhrases);
     }
 
     @Transactional
@@ -323,53 +159,39 @@ public class BookService {
         bookRepository.delete(book);
     }
 
-    private CompletedBooksResponse.CompletedBook toCompletedBook(Book book, List<UnknownWord> unknownWords, List<UnknownPhrase> unknownPhrases) {
-        List<CompletedBooksResponse.UnknownWordResponse> unknownWordResponses = unknownWords.stream()
-                .map(word -> CompletedBooksResponse.UnknownWordResponse.builder()
-                        .id(word.getId())
-                        .word(word.getWord())
-                        .wordMeaning(word.getWordMeaning())
-                        .sentenceId(word.getSentenceId())
-                        .sentence(word.getSentence())
-                        .sentenceMeaning(word.getSentenceMeaning())
-                        .location(word.getLocation())
-                        .length(word.getLength())
-                        .nextReviewDate(word.getNextReviewDate())
-                        .createdAt(word.getCreatedAt())
-                        .build())
-                .toList();
-
-        List<CompletedBooksResponse.UnknownPhraseResponse> unknownPhraseResponses = unknownPhrases.stream()
-                .map(phrase ->
-                        CompletedBooksResponse.UnknownPhraseResponse.builder()
-                                .id(phrase.getId())
-                                .phrase(phrase.getPhrase())
-                                .phraseMeaning(phrase.getPhraseMeaning())
-                                .sentenceId(phrase.getSentenceId())
-                                .sentence(phrase.getSentence())
-                                .sentenceMeaning(phrase.getSentenceMeaning())
-                                .words(phrase.getWords().stream()
-                                        .map(w -> new
-                                                CompletedBooksResponse.PhraseWordResponse(
-                                                w.getWord(),
-                                                w.getLocation(),
-                                                w.getLength()
-                                        ))
-                                        .toList())
-                                .nextReviewDate(phrase.getNextReviewDate())
-                                .createdAt(phrase.getCreatedAt())
-                                .build())
-                .toList();
-
-        return CompletedBooksResponse.CompletedBook.builder()
-                .id(book.getId())
-                .title(book.getTitle())
-                .category(book.getCategory().getValue())
-                .abilityScore(book.getAbilityScore())
-                .isBookmarked(book.getIsBookmarked())
-                .createdAt(book.getCreatedAt())
-                .unknownWords(unknownWordResponses)
-                .unknownPhrases(unknownPhraseResponses)
-                .build();
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
+
+    private Book findReadyBook(User user) {
+        return bookRepository.findFirstByUserAndIsProvisionFalseWithReviewWords(user)
+                .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_READY));
+    }
+
+    private StoryData loadStoryData(Book book, List<Sentence> sentences) {
+        List<Word> allWords = wordRepository.findAllBySentenceIn(sentences);
+        List<Phrase> allPhrases = phraseRepository.findAllBySentenceIn(sentences);
+
+        Map<Long, List<Word>> wordsBySentence = allWords.stream()
+                .collect(Collectors.groupingBy(w -> w.getSentence().getId()));
+        Map<Long, List<Phrase>> phrasesBySentence = allPhrases.stream()
+                .collect(Collectors.groupingBy(p -> p.getSentence().getId()));
+
+        List<Quiz> quizzes = quizRepository.findAllByBook(book);
+        List<UnknownWord> unknownWords = book.getReviewWords().stream().toList();
+        List<UnknownPhrase> unknownPhrases = book.getReviewPhrases().stream().toList();
+
+        return new StoryData(sentences, wordsBySentence, phrasesBySentence, quizzes, unknownWords, unknownPhrases);
+    }
+
+    private void finalizeProvision(Book book, List<Sentence> sentences) {
+        book.markAsProvision();
+
+        sentences.forEach(sentence -> {
+            wordRepository.deleteAllBySentence(sentence);
+            phraseRepository.deleteAllBySentence(sentence);
+        });
+    }
+
 }
