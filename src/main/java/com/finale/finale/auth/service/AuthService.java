@@ -178,6 +178,7 @@ public class AuthService {
     }
 
     private UserResponse toUserResponse(User user) {
+        user.statusToday();
         return new UserResponse(
             user.getId(),
             user.getEmail(),
@@ -186,6 +187,8 @@ public class AuthService {
             user.getRole(),
             user.getAbilityScore(),
             user.getBookReadCount(),
+            user.getContinuosLearning(),
+            user.getTodayBooksReadCount(),
             user.needsNickname()
         );
     }

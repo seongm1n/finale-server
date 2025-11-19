@@ -10,6 +10,8 @@ public record UserResponse(
     Role role,
     Integer abilityScore,
     Integer bookReadCount,
+    Integer continuousLearningDays,
+    Integer todayBooksReadCount,
     boolean needsNickname
 ) {
 }
