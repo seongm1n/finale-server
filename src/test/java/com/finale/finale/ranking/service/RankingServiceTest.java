@@ -16,13 +16,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.redisson.client.protocol.ScoredEntry;
 
+import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.mockito.Spy;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +44,9 @@ class RankingServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Spy
+    private Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
     private RankingService rankingService;
@@ -229,7 +235,7 @@ class RankingServiceTest {
         ScoredEntry<String> entry1 = createScoredEntry("20", 4500.0);
         ScoredEntry<String> entry2 = createScoredEntry("1", 4210.0);
         ScoredEntry<String> entry3 = createScoredEntry("30", 4000.0);
-        given(rankingRepository.getRankRangeEntries(eq(weekStart), any(Integer.class), any(Integer.class)))
+        given(rankingRepository.getRankRangeEntries(weekStart, 134, 154))
                 .willReturn(List.of(entry1, entry2, entry3));
         given(rankingRepository.getUserInfos(eq(weekStart), any()))
                 .willReturn(Map.of(
@@ -333,8 +339,8 @@ class RankingServiceTest {
         RankingResultResponse response = rankingService.processResult(userId, new RankingResultRequest(gainedScore));
 
         // Then
-        assertThat(response.rangeStart()).isEqualTo(5);  // endRank(8) - 3
-        assertThat(response.rangeEnd()).isEqualTo(13);   // startRank(10) + 3
+        assertThat(response.rangeStart()).isEqualTo(5);
+        assertThat(response.rangeEnd()).isEqualTo(13);
         assertThat(response.rankingRange()).hasSize(4);
         assertThat(response.rankingRange().get(0).rank()).isEqualTo(5);
         assertThat(response.rankingRange().get(0).nickname()).isEqualTo("user5");

@@ -37,7 +37,13 @@ public enum ErrorCode {
     INVALID_SORT_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 정렬 파라미터입니다."),
     INVALID_CATEGORY_PARAMETER(HttpStatus.BAD_REQUEST, "유효하지 않은 카테고리 파라미터입니다."),
     NICKNAME_ALREADY_EXISTS(HttpStatus.CONFLICT, "이미 존재하는 닉네임입니다."),
-    NICKNAME_SAME_AS_BEFORE(HttpStatus.BAD_REQUEST, "이전 닉네임과 동일합니다.");
+    NICKNAME_SAME_AS_BEFORE(HttpStatus.BAD_REQUEST, "이전 닉네임과 동일합니다."),
+
+    PATH_NOT_FOUND(HttpStatus.NOT_FOUND, "요청한 경로를 찾을 수 없습니다."),
+    METHOD_NOT_ALLOWED(HttpStatus.METHOD_NOT_ALLOWED, "허용되지 않은 HTTP 메서드입니다."),
+    INVALID_REQUEST(HttpStatus.BAD_REQUEST, "요청 형식이 잘못되었습니다."),
+
+    UNKNOWN_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "알 수 없는 오류가 발생했습니다.");
 
     private final HttpStatus status;
     private final String message;

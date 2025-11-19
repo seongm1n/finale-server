@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.client.protocol.ScoredEntry;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -24,9 +21,11 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class RankingService {
+    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final RankingRepository rankingRepository;
     private final UserRepository userRepository;
+    private final Clock clock;
 
     public RankingResponse getRankings(Long userId) {
         LocalDate weekStart = getWeekStart();
@@ -93,6 +92,7 @@ public class RankingService {
 
         if (startRank == null) {
             startRank = totalParticipants + 1;
+            totalParticipants++;
         }
 
         int gainedScore = request.gainedScore();
@@ -112,7 +112,8 @@ public class RankingService {
         }
 
         int rangeStart = Math.max(1, endRank - 3);
-        int rangeEnd = Math.min(totalParticipants, startRank + 3);
+        int participantsAfterAdd = rankingRepository.getTotalParticipants(weekStart);
+        int rangeEnd = Math.min(participantsAfterAdd, startRank + 3);
 
         List<RankingResultResponse.RankingResultEntry> rankingRange = getRankRange(weekStart, rangeStart, rangeEnd);
 
@@ -170,7 +171,7 @@ public class RankingService {
     }
 
     private LocalDate getWeekStart() {
-        return LocalDate.now().with(DayOfWeek.MONDAY);
+        return LocalDate.now(clock.withZone(KST)).with(DayOfWeek.MONDAY);
     }
 
     private String getSeasonName(LocalDate weekStart) {
@@ -179,7 +180,7 @@ public class RankingService {
     }
 
     private RankingResponse.TimeLeft calculateTimeLeft(LocalDate weekEnd) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now(clock.withZone(KST));
         LocalDateTime endOfSeason = weekEnd.atTime(23, 59, 59);
 
         Duration duration = Duration.between(now, endOfSeason);
