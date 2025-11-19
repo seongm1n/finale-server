@@ -6,6 +6,7 @@ import com.finale.finale.auth.dto.request.AbilityRequest;
 import com.finale.finale.auth.dto.request.LoginRequest;
 import com.finale.finale.auth.dto.request.RefreshRequest;
 import com.finale.finale.auth.dto.response.LoginResponse;
+import com.finale.finale.auth.dto.response.NicknameCheckResponse;
 import com.finale.finale.auth.dto.response.RefreshResponse;
 import com.finale.finale.auth.dto.response.UserResponse;
 import com.finale.finale.book.repository.*;
@@ -109,6 +110,15 @@ public class AuthService {
         userRepository.save(user);
 
         return toUserResponse(user);
+    }
+
+    public NicknameCheckResponse checkNickname(String nickname) {
+        boolean exists = userRepository.existsByNickname(nickname);
+
+        if (exists) {
+            return NicknameCheckResponse.unavailable(nickname);
+        }
+        return NicknameCheckResponse.available(nickname);
     }
 
     public void withdraw(Long userId) {

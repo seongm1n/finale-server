@@ -1,12 +1,9 @@
 package com.finale.finale.auth.controller;
 
 import com.finale.finale.auth.dto.request.*;
-import com.finale.finale.auth.dto.response.LoginResponse;
-import com.finale.finale.auth.dto.response.LogoutResponse;
-import com.finale.finale.auth.dto.response.RefreshResponse;
-import com.finale.finale.auth.dto.response.UserResponse;
-import com.finale.finale.auth.dto.response.WithdrawResponse;
+import com.finale.finale.auth.dto.response.*;
 import com.finale.finale.book.service.StoryGenerationService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +48,18 @@ public class AuthController {
     ) {
         UserResponse response = authService.setNickname(userId, request.nickname());
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/nickname/check")
+    public ResponseEntity<NicknameCheckResponse> checkNickname(
+            @Valid @RequestBody NicknameRequest request
+    ) {
+        NicknameCheckResponse response = authService.checkNickname(request.nickname());
+
+        if (response.isAvailable()) {
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @PostMapping("/logout")
