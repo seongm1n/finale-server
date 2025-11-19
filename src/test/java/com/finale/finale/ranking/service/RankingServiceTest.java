@@ -235,7 +235,7 @@ class RankingServiceTest {
         ScoredEntry<String> entry1 = createScoredEntry("20", 4500.0);
         ScoredEntry<String> entry2 = createScoredEntry("1", 4210.0);
         ScoredEntry<String> entry3 = createScoredEntry("30", 4000.0);
-        given(rankingRepository.getRankRangeEntries(weekStart, 134, 140))
+        given(rankingRepository.getRankRangeEntries(weekStart, 134, 154))
                 .willReturn(List.of(entry1, entry2, entry3));
         given(rankingRepository.getUserInfos(eq(weekStart), any()))
                 .willReturn(Map.of(
@@ -254,7 +254,7 @@ class RankingServiceTest {
         assertThat(response.oldScore()).isEqualTo(4090);
         assertThat(response.newScore()).isEqualTo(4210);
         assertThat(response.rangeStart()).isEqualTo(135);
-        assertThat(response.rangeEnd()).isEqualTo(141);
+        assertThat(response.rangeEnd()).isEqualTo(155);
 
         verify(rankingRepository).addScore(weekStart, userId, gainedScore, "testUser", "sf");
     }
@@ -325,7 +325,7 @@ class RankingServiceTest {
         ScoredEntry<String> entry2 = createScoredEntry("6", 1150.0);
         ScoredEntry<String> entry3 = createScoredEntry("1", 1050.0);
         ScoredEntry<String> entry4 = createScoredEntry("10", 950.0);
-        given(rankingRepository.getRankRangeEntries(weekStart, 4, 10))
+        given(rankingRepository.getRankRangeEntries(weekStart, 4, 12))
                 .willReturn(List.of(entry1, entry2, entry3, entry4));
         given(rankingRepository.getUserInfos(eq(weekStart), any()))
                 .willReturn(Map.of(
@@ -339,8 +339,8 @@ class RankingServiceTest {
         RankingResultResponse response = rankingService.processResult(userId, new RankingResultRequest(gainedScore));
 
         // Then
-        assertThat(response.rangeStart()).isEqualTo(5);  // endRank(8) - 3
-        assertThat(response.rangeEnd()).isEqualTo(11);   // endRank(8) + 3
+        assertThat(response.rangeStart()).isEqualTo(5);
+        assertThat(response.rangeEnd()).isEqualTo(13);
         assertThat(response.rankingRange()).hasSize(4);
         assertThat(response.rankingRange().get(0).rank()).isEqualTo(5);
         assertThat(response.rankingRange().get(0).nickname()).isEqualTo("user5");

@@ -113,7 +113,7 @@ public class RankingService {
 
         int rangeStart = Math.max(1, endRank - 3);
         int participantsAfterAdd = rankingRepository.getTotalParticipants(weekStart);
-        int rangeEnd = Math.min(participantsAfterAdd, endRank + 3);
+        int rangeEnd = Math.min(participantsAfterAdd, startRank + 3);
 
         List<RankingResultResponse.RankingResultEntry> rankingRange = getRankRange(weekStart, rangeStart, rangeEnd);
 
