@@ -7,6 +7,7 @@ import com.finale.finale.auth.dto.request.AbilityRequest;
 import com.finale.finale.auth.dto.request.LoginRequest;
 import com.finale.finale.auth.dto.request.RefreshRequest;
 import com.finale.finale.auth.dto.response.LoginResponse;
+import com.finale.finale.auth.dto.response.NicknameCheckResponse;
 import com.finale.finale.auth.dto.response.RefreshResponse;
 import com.finale.finale.auth.dto.response.UserResponse;
 import com.finale.finale.auth.oauth.OAuth2TokenValidator;
@@ -342,5 +343,36 @@ public class AuthServiceTest {
         verify(oauthProviderRepository).delete(oauthProvider);
         verify(refreshTokenRepository).deleteByUser(user);
         verify(userRepository).delete(user);
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 확인 - 사용 가능")
+    void checkNicknameAvailable() {
+        // Given
+        given(userRepository.existsByNickname("NewNick")).willReturn(false);
+
+        // When
+        NicknameCheckResponse response = authService.checkNickname("NewNick");
+
+        // Then
+        assertThat(response.isAvailable()).isTrue();
+        assertThat(response.nickname()).isEqualTo("NewNick");
+        verify(userRepository).existsByNickname("NewNick");
+    }
+
+    @Test
+    @DisplayName("닉네임 중복 확인 - 사용 불가")
+    void checkNicknameUnavailable() {
+        // Given
+        given(userRepository.existsByNickname("ExistingNick")).willReturn(true);
+
+        // When
+        NicknameCheckResponse response = authService.checkNickname("ExistingNick");
+
+        // Then
+        assertThat(response.isAvailable()).isFalse();
+        assertThat(response.nickname()).isEqualTo("ExistingNick");
+        assertThat(response.message()).isEqualTo("이미 사용 중인 닉네임입니다.");
+        verify(userRepository).existsByNickname("ExistingNick");
     }
 }
