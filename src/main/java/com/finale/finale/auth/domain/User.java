@@ -138,6 +138,13 @@ public class User {
         lastLearnDate = today;
     }
 
+    public void statusToday() {
+        LocalDate today = LocalDate.now();
+        if (!lastLearnDate.isEqual(today)) {
+            todayBooksReadCount = 0;
+        }
+    }
+
     @PreUpdate
     private void onUpdate() {
         this.updatedAt = LocalDateTime.now();
