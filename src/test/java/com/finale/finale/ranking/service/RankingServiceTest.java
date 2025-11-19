@@ -16,16 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.redisson.client.protocol.ScoredEntry;
 
-import java.time.Clock;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.mockito.Spy;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,9 +41,6 @@ class RankingServiceTest {
 
     @Mock
     private UserRepository userRepository;
-
-    @Spy
-    private Clock clock = Clock.system(ZoneId.of("Asia/Seoul"));
 
     @InjectMocks
     private RankingService rankingService;
