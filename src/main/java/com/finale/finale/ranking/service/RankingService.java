@@ -12,7 +12,10 @@ import lombok.RequiredArgsConstructor;
 import org.redisson.client.protocol.ScoredEntry;
 import org.springframework.stereotype.Service;
 
-import java.time.*;
+import java.time.DayOfWeek;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -21,11 +24,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class RankingService {
-    private static final ZoneId KST = ZoneId.of("Asia/Seoul");
 
     private final RankingRepository rankingRepository;
     private final UserRepository userRepository;
-    private final Clock clock;
 
     public RankingResponse getRankings(Long userId) {
         LocalDate weekStart = getWeekStart();
@@ -171,7 +172,7 @@ public class RankingService {
     }
 
     private LocalDate getWeekStart() {
-        return LocalDate.now(clock.withZone(KST)).with(DayOfWeek.MONDAY);
+        return LocalDate.now().with(DayOfWeek.MONDAY);
     }
 
     private String getSeasonName(LocalDate weekStart) {
@@ -180,7 +181,7 @@ public class RankingService {
     }
 
     private RankingResponse.TimeLeft calculateTimeLeft(LocalDate weekEnd) {
-        LocalDateTime now = LocalDateTime.now(clock.withZone(KST));
+        LocalDateTime now = LocalDateTime.now();
         LocalDateTime endOfSeason = weekEnd.atTime(23, 59, 59);
 
         Duration duration = Duration.between(now, endOfSeason);
