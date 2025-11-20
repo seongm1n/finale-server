@@ -73,7 +73,7 @@ public class CompletedBooksAssembler {
                 .category(book.getCategory().getValue())
                 .abilityScore(book.getAbilityScore())
                 .isBookmarked(book.getIsBookmarked())
-                .createdAt(book.getCreatedAt())
+                .createdAt(book.getCompletedAt()) // TODO 일단은 필드명 안바꾸고 사용
                 .unknownWords(unknownWordResponses)
                 .unknownPhrases(unknownPhraseResponses)
                 .build();

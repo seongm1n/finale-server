@@ -64,6 +64,9 @@ public class Book {
     )
     private List<UnknownPhrase> reviewPhrases = new ArrayList<>();
 
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -112,5 +115,9 @@ public class Book {
         if (isCompleted) {
             throw new CustomException(ErrorCode.BOOK_ALREADY_COMPLETED);
         }
+    }
+
+    public void setCompletedAt() {
+        this.completedAt = LocalDateTime.now();
     }
 }
