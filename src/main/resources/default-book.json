@@ -1,0 +1,1083 @@
+{
+    "bookId": 1,
+    "title": "The Gift of Honesty",
+    "category": "moral",
+    "abilityScore": 500,
+    "totalWordCount": 375,
+    "sentences": [
+        {
+            "sentenceId": 1,
+            "paragraphNumber": 1,
+            "sentenceOrder": 1,
+            "englishText": "In a quaint village nestled between rolling hills, lived a young girl named Maya.",
+            "koreanText": "구불구불한 언덕 사이에 자리 잡은 아담한 마을에 마야라는 소녀가 살았다.",
+            "words": [
+                {"word": "In", "meaning": "안에", "location": 0, "length": 2},
+                {"word": "a", "meaning": "하나의", "location": 3, "length": 1},
+                {"word": "quaint", "meaning": "아름답고 독특한", "location": 5, "length": 6},
+                {"word": "village", "meaning": "마을", "location": 12, "length": 7},
+                {"word": "nestled", "meaning": "아늑하게 자리 잡은", "location": 20, "length": 7},
+                {"word": "between", "meaning": "사이에", "location": 28, "length": 7},
+                {"word": "rolling", "meaning": "구르는", "location": 36, "length": 7},
+                {"word": "hills", "meaning": "언덕들", "location": 44, "length": 5},
+                {"word": "lived", "meaning": "살았다", "location": 51, "length": 5},
+                {"word": "young", "meaning": "젊은", "location": 59, "length": 5},
+                {"word": "girl", "meaning": "소녀", "location": 65, "length": 4},
+                {"word": "named", "meaning": "이름이 붙여진", "location": 70, "length": 5},
+                {"word": "Maya", "meaning": "마야", "location": 76, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "사이에 아늑하게 자리 잡은",
+                    "expression": [
+                        {"word": "nestled", "location": 20, "length": 7},
+                        {"word": "between", "location": 28, "length": 7}
+                    ]
+                },
+                {
+                    "meaning": "마야라 이름 붙여진",
+                    "expression": [
+                        {"word": "named", "location": 70, "length": 5},
+                        {"word": "Maya", "location": 76, "length": 4}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 2,
+            "paragraphNumber": 1,
+            "sentenceOrder": 2,
+            "englishText": "Her laughter echoed through the cobbled streets, brightening even the gloomiest days.",
+            "koreanText": "그녀의 웃음소리는 자갈 거리에서 메아리쳐 울려 퍼져 가장 우울한 날도 밝게 만들어 주었다.",
+            "words": [
+                {"word": "Her", "meaning": "그녀의", "location": 0, "length": 3},
+                {"word": "laughter", "meaning": "웃음", "location": 4, "length": 8},
+                {"word": "echoed", "meaning": "메아리쳤다", "location": 13, "length": 6},
+                {"word": "through", "meaning": "통하여", "location": 20, "length": 7},
+                {"word": "the", "meaning": "그", "location": 28, "length": 3},
+                {"word": "cobbled", "meaning": "자갈로 포장된", "location": 32, "length": 7},
+                {"word": "streets", "meaning": "거리", "location": 40, "length": 7},
+                {"word": "brightening", "meaning": "밝게 하다", "location": 49, "length": 11},
+                {"word": "even", "meaning": "조차", "location": 61, "length": 4},
+                {"word": "gloomiest", "meaning": "가장 우울한", "location": 70, "length": 9},
+                {"word": "days", "meaning": "날들", "location": 80, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "메아리치다",
+                    "expression": [
+                        {"word": "echoed", "location": 13, "length": 6},
+                        {"word": "through", "location": 20, "length": 7}
+                    ]
+                },
+                {
+                    "meaning": "가장 우울한 날들을 밝게 하다",
+                    "expression": [
+                        {"word": "brightening", "location": 49, "length": 11},
+                        {"word": "even", "location": 61, "length": 4},
+                        {"word": "the", "location": 66, "length": 3},
+                        {"word": "gloomiest", "location": 70, "length": 9},
+                        {"word": "days", "location": 80, "length": 4}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 3,
+            "paragraphNumber": 1,
+            "sentenceOrder": 3,
+            "englishText": "Maya had a heart full of dreams and a spirit as free as the wind.",
+            "koreanText": "마야는 꿈이 가득한 마음과 바람처럼 자유로운 정신을 지니고 있었다.",
+            "words": [
+                {"word": "Maya", "meaning": "마야", "location": 0, "length": 4},
+                {"word": "had", "meaning": "갖고 있었다", "location": 5, "length": 3},
+                {"word": "heart", "meaning": "마음", "location": 11, "length": 5},
+                {"word": "full", "meaning": "가득 찬", "location": 17, "length": 4},
+                {"word": "of", "meaning": "의", "location": 22, "length": 2},
+                {"word": "dreams", "meaning": "꿈들", "location": 25, "length": 6},
+                {"word": "and", "meaning": "그리고", "location": 32, "length": 3},
+                {"word": "spirit", "meaning": "정신", "location": 38, "length": 6},
+                {"word": "as", "meaning": "처럼", "location": 45, "length": 2},
+                {"word": "free", "meaning": "자유로운", "location": 48, "length": 4},
+                {"word": "wind", "meaning": "바람", "location": 60, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "가득 찬",
+                    "expression": [
+                        {"word": "full", "location": 17, "length": 4},
+                        {"word": "of", "location": 22, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "처럼 자유로운",
+                    "expression": [
+                        {"word": "as", "location": 45, "length": 2},
+                        {"word": "free", "location": 48, "length": 4},
+                        {"word": "as", "location": 53, "length": 2}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 4,
+            "paragraphNumber": 2,
+            "sentenceOrder": 1,
+            "englishText": "One sunny afternoon, while playing with her friends, she discovered an old, dusty box near the village well.",
+            "koreanText": "어느 화창한 오후, 친구들과 놀다가 그녀는 마을 우물 근처에서 오래된 더러운 상자를 발견했다.",
+            "words": [
+                {"word": "One", "meaning": "하나", "location": 0, "length": 3},
+                {"word": "sunny", "meaning": "햇볕이 드는", "location": 4, "length": 5},
+                {"word": "afternoon", "meaning": "오후", "location": 10, "length": 9},
+                {"word": "while", "meaning": "동안", "location": 21, "length": 5},
+                {"word": "playing", "meaning": "노는", "location": 27, "length": 7},
+                {"word": "with", "meaning": "와 함께", "location": 35, "length": 4},
+                {"word": "her", "meaning": "그녀의", "location": 40, "length": 3},
+                {"word": "friends", "meaning": "친구들", "location": 44, "length": 7},
+                {"word": "she", "meaning": "그녀는", "location": 53, "length": 3},
+                {"word": "discovered", "meaning": "발견했다", "location": 57, "length": 10},
+                {"word": "old", "meaning": "오래된", "location": 71, "length": 3},
+                {"word": "dusty", "meaning": "먼지가 많은", "location": 76, "length": 5},
+                {"word": "box", "meaning": "상자", "location": 82, "length": 3},
+                {"word": "near", "meaning": "근처에", "location": 86, "length": 4},
+                {"word": "village", "meaning": "촌", "location": 95, "length": 7},
+                {"word": "well", "meaning": "우물", "location": 103, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "함께 노는",
+                    "expression": [
+                        {"word": "playing", "location": 27, "length": 7},
+                        {"word": "with", "location": 35, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "하나의 오래되고 먼지가 많은 상자를 발견했다",
+                    "expression": [
+                        {"word": "discovered", "location": 57, "length": 10},
+                        {"word": "an", "location": 68, "length": 2},
+                        {"word": "old", "location": 71, "length": 3},
+                        {"word": "dusty", "location": 76, "length": 5},
+                        {"word": "box", "location": 82, "length": 3}
+                    ]
+                },
+                {
+                    "meaning": "촌의 우물 근처에",
+                    "expression": [
+                        {"word": "near", "location": 86, "length": 4},
+                        {"word": "the", "location": 91, "length": 3},
+                        {"word": "village", "location": 95, "length": 7},
+                        {"word": "well", "location": 103, "length": 4}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 5,
+            "paragraphNumber": 2,
+            "sentenceOrder": 2,
+            "englishText": "Curiosity sparkled in her eyes as she brushed away the dirt and opened the box.",
+            "koreanText": "호기심이 그녀의 눈에 반짝이며 그녀는 먼지를 털어내고 상자를 열었다.",
+            "words": [
+                {"word": "Curiosity", "meaning": "호기심", "location": 0, "length": 9},
+                {"word": "sparkled", "meaning": "반짝였다", "location": 10, "length": 8},
+                {"word": "in", "meaning": "안에", "location": 19, "length": 2},
+                {"word": "her", "meaning": "그녀의", "location": 22, "length": 3},
+                {"word": "eyes", "meaning": "눈", "location": 26, "length": 4},
+                {"word": "as", "meaning": "때", "location": 31, "length": 2},
+                {"word": "she", "meaning": "그녀는", "location": 34, "length": 3},
+                {"word": "brushed", "meaning": "털었다", "location": 38, "length": 7},
+                {"word": "away", "meaning": "멀리", "location": 46, "length": 4},
+                {"word": "dirt", "meaning": "흙", "location": 55, "length": 4},
+                {"word": "and", "meaning": "그리고", "location": 60, "length": 3},
+                {"word": "opened", "meaning": "열었다", "location": 64, "length": 6},
+                {"word": "box", "meaning": "상자", "location": 75, "length": 3}
+            ],
+            "phrases": [
+                {
+                    "meaning": "털어냈다",
+                    "expression": [
+                        {"word": "brushed", "location": 38, "length": 7},
+                        {"word": "away", "location": 46, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "눈에 반짝였다",
+                    "expression": [
+                        {"word": "sparkled", "location": 10, "length": 8},
+                        {"word": "in", "location": 19, "length": 2}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 6,
+            "paragraphNumber": 2,
+            "sentenceOrder": 3,
+            "englishText": "Inside, she found a collection of colorful stones, shimmering under the sunlight.",
+            "koreanText": "그 안에는 햇빛 아래에서 빛나는 다채로운 돌들이 가득 차 있었다.",
+            "words": [
+                {"word": "Inside", "meaning": "안쪽에", "location": 0, "length": 6},
+                {"word": "she", "meaning": "그녀는", "location": 8, "length": 3},
+                {"word": "found", "meaning": "찾았다", "location": 12, "length": 5},
+                {"word": "collection", "meaning": "수집", "location": 20, "length": 10},
+                {"word": "of", "meaning": "의", "location": 31, "length": 2},
+                {"word": "colorful", "meaning": "다채로운", "location": 34, "length": 8},
+                {"word": "stones", "meaning": "돌들", "location": 43, "length": 6},
+                {"word": "shimmering", "meaning": "반짝이는", "location": 51, "length": 10},
+                {"word": "under", "meaning": "아래에", "location": 62, "length": 5},
+                {"word": "sunlight", "meaning": "햇빛", "location": 72, "length": 8}
+            ],
+            "phrases": [
+                {
+                    "meaning": "수집을 찾았다",
+                    "expression": [
+                        {"word": "found", "location": 12, "length": 5},
+                        {"word": "a", "location": 18, "length": 1},
+                        {"word": "collection", "location": 20, "length": 10}
+                    ]
+                },
+                {
+                    "meaning": "다채로운 돌들",
+                    "expression": [
+                        {"word": "colorful", "location": 34, "length": 8},
+                        {"word": "stones", "location": 43, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "햇빛 아래에서 반짝이는",
+                    "expression": [
+                        {"word": "shimmering", "location": 51, "length": 10},
+                        {"word": "under", "location": 62, "length": 5},
+                        {"word": "the", "location": 68, "length": 3},
+                        {"word": "sunlight", "location": 72, "length": 8}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 7,
+            "paragraphNumber": 3,
+            "sentenceOrder": 1,
+            "englishText": "Maya shared her discovery with her friends, and they all agreed that the stones were magical.",
+            "koreanText": "마야는 친구들에게 그 발견을 공유했고, 그들은 모두 그 돌들이 마법 같다고 동의했다.",
+            "words": [
+                {"word": "Maya", "meaning": "마야", "location": 0, "length": 4},
+                {"word": "shared", "meaning": "공유했다", "location": 5, "length": 6},
+                {"word": "her", "meaning": "그녀의", "location": 12, "length": 3},
+                {"word": "discovery", "meaning": "발견", "location": 16, "length": 9},
+                {"word": "with", "meaning": "와 함께", "location": 26, "length": 4},
+                {"word": "friends", "meaning": "친구들", "location": 35, "length": 7},
+                {"word": "and", "meaning": "그리고", "location": 44, "length": 3},
+                {"word": "they", "meaning": "그들은", "location": 48, "length": 4},
+                {"word": "all", "meaning": "모두", "location": 53, "length": 3},
+                {"word": "agreed", "meaning": "동의했다", "location": 57, "length": 6},
+                {"word": "that", "meaning": "그것은", "location": 64, "length": 4},
+                {"word": "stones", "meaning": "돌들", "location": 73, "length": 6},
+                {"word": "were", "meaning": "였다", "location": 80, "length": 4},
+                {"word": "magical", "meaning": "마법의", "location": 85, "length": 7}
+            ],
+            "phrases": [
+                {
+                    "meaning": "공유했다",
+                    "expression": [
+                        {"word": "shared", "location": 5, "length": 6},
+                        {"word": "with", "location": 26, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "동의했다",
+                    "expression": [
+                        {"word": "agreed", "location": 57, "length": 6},
+                        {"word": "that", "location": 64, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "마법의이었다",
+                    "expression": [
+                        {"word": "were", "location": 80, "length": 4},
+                        {"word": "magical", "location": 85, "length": 7}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 8,
+            "paragraphNumber": 3,
+            "sentenceOrder": 2,
+            "englishText": "Excited, they decided to keep the stones a secret from the village elders, believing the magic would fade if anyone else knew.",
+            "koreanText": "그들은 신나서 그 마법이 다른 사람들에게 알려지면 사라질 것이라고 믿으며 마을 원로들에게 비밀로 하기로 결심했다.",
+            "words": [
+                {"word": "Excited", "meaning": "신나는", "location": 0, "length": 7},
+                {"word": "they", "meaning": "그들", "location": 9, "length": 4},
+                {"word": "decided", "meaning": "결정했다", "location": 14, "length": 7},
+                {"word": "to", "meaning": "하러", "location": 22, "length": 2},
+                {"word": "keep", "meaning": "유지하다", "location": 25, "length": 4},
+                {"word": "stones", "meaning": "돌들", "location": 34, "length": 6},
+                {"word": "secret", "meaning": "비밀", "location": 43, "length": 6},
+                {"word": "from", "meaning": "으로부터", "location": 50, "length": 4},
+                {"word": "village", "meaning": "마을", "location": 59, "length": 7},
+                {"word": "elders", "meaning": "장로들", "location": 67, "length": 6},
+                {"word": "believing", "meaning": "믿으며", "location": 75, "length": 9},
+                {"word": "magic", "meaning": "마법", "location": 89, "length": 5},
+                {"word": "would", "meaning": "할 것이다", "location": 95, "length": 5},
+                {"word": "fade", "meaning": "희미해지다", "location": 101, "length": 4},
+                {"word": "if", "meaning": "만약", "location": 106, "length": 2},
+                {"word": "anyone", "meaning": "누구든", "location": 109, "length": 6},
+                {"word": "else", "meaning": "다른", "location": 116, "length": 4},
+                {"word": "knew", "meaning": "알았다", "location": 121, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "유지하기로 결정했다",
+                    "expression": [
+                        {"word": "decided", "location": 14, "length": 7},
+                        {"word": "to", "location": 22, "length": 2},
+                        {"word": "keep", "location": 25, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "으로부터의 비밀",
+                    "expression": [
+                        {"word": "a", "location": 41, "length": 1},
+                        {"word": "secret", "location": 43, "length": 6},
+                        {"word": "from", "location": 50, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "마법이 희미해질 것이라고 믿으며",
+                    "expression": [
+                        {"word": "believing", "location": 75, "length": 9},
+                        {"word": "the", "location": 85, "length": 3},
+                        {"word": "magic", "location": 89, "length": 5},
+                        {"word": "would", "location": 95, "length": 5},
+                        {"word": "fade", "location": 101, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "다른 누구든 알고 있다면",
+                    "expression": [
+                        {"word": "if", "location": 106, "length": 2},
+                        {"word": "anyone", "location": 109, "length": 6},
+                        {"word": "else", "location": 116, "length": 4},
+                        {"word": "knew", "location": 121, "length": 4}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 9,
+            "paragraphNumber": 3,
+            "sentenceOrder": 3,
+            "englishText": "Days turned into weeks, and the stones became a source of joy and mischief for the children.",
+            "koreanText": "날이 주로 지나면서 그 돌들은 아이들에게 즐거움과 장난의 원천이 되었다.",
+            "words": [
+                {"word": "Days", "meaning": "날들", "location": 0, "length": 4},
+                {"word": "turned", "meaning": "변했다", "location": 5, "length": 6},
+                {"word": "into", "meaning": "로", "location": 12, "length": 4},
+                {"word": "weeks", "meaning": "주", "location": 17, "length": 5},
+                {"word": "and", "meaning": "그리고", "location": 24, "length": 3},
+                {"word": "stones", "meaning": "돌들", "location": 32, "length": 6},
+                {"word": "became", "meaning": "되었다", "location": 39, "length": 6},
+                {"word": "source", "meaning": "원천", "location": 48, "length": 6},
+                {"word": "of", "meaning": "의", "location": 55, "length": 2},
+                {"word": "joy", "meaning": "기쁨", "location": 58, "length": 3},
+                {"word": "mischief", "meaning": "장난", "location": 66, "length": 8},
+                {"word": "for", "meaning": "위한", "location": 75, "length": 3},
+                {"word": "children", "meaning": "아이들", "location": 83, "length": 8}
+            ],
+            "phrases": [
+                {
+                    "meaning": "변화하다",
+                    "expression": [
+                        {"word": "turned", "location": 5, "length": 6},
+                        {"word": "into", "location": 12, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "원천이 되다",
+                    "expression": [
+                        {"word": "became", "location": 39, "length": 6},
+                        {"word": "a", "location": 46, "length": 1},
+                        {"word": "source", "location": 48, "length": 6},
+                        {"word": "of", "location": 55, "length": 2}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 10,
+            "paragraphNumber": 4,
+            "sentenceOrder": 1,
+            "englishText": "They played games, using the stones as prizes, and crafted stories about their magical properties.",
+            "koreanText": "그들은 그 돌들을 상품으로 사용하는 놀이를 하며, 그 마법의 속성에 대한 이야기를 만들어 냈다.",
+            "words": [
+                {"word": "They", "meaning": "그들", "location": 0, "length": 4},
+                {"word": "played", "meaning": "놀았다", "location": 5, "length": 6},
+                {"word": "games", "meaning": "게임", "location": 12, "length": 5},
+                {"word": "using", "meaning": "사용하는", "location": 19, "length": 5},
+                {"word": "stones", "meaning": "돌", "location": 29, "length": 6},
+                {"word": "as", "meaning": "처럼", "location": 36, "length": 2},
+                {"word": "prizes", "meaning": "상", "location": 39, "length": 6},
+                {"word": "and", "meaning": "그리고", "location": 47, "length": 3},
+                {"word": "crafted", "meaning": "제작했다", "location": 51, "length": 7},
+                {"word": "stories", "meaning": "이야기", "location": 59, "length": 7},
+                {"word": "about", "meaning": "에 대한", "location": 67, "length": 5},
+                {"word": "their", "meaning": "그들의", "location": 73, "length": 5},
+                {"word": "magical", "meaning": "마법의", "location": 79, "length": 7},
+                {"word": "properties", "meaning": "속성", "location": 87, "length": 10}
+            ],
+            "phrases": [
+                {
+                    "meaning": "게임을 했다",
+                    "expression": [
+                        {"word": "played", "location": 5, "length": 6},
+                        {"word": "games", "location": 12, "length": 5}
+                    ]
+                },
+                {
+                    "meaning": "돌을 상으로 사용하여",
+                    "expression": [
+                        {"word": "using", "location": 19, "length": 5},
+                        {"word": "the", "location": 25, "length": 3},
+                        {"word": "stones", "location": 29, "length": 6},
+                        {"word": "as", "location": 36, "length": 2},
+                        {"word": "prizes", "location": 39, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "그들의 마법의 속성에 관한 이야기를 만들었다",
+                    "expression": [
+                        {"word": "crafted", "location": 51, "length": 7},
+                        {"word": "stories", "location": 59, "length": 7},
+                        {"word": "about", "location": 67, "length": 5},
+                        {"word": "their", "location": 73, "length": 5},
+                        {"word": "magical", "location": 79, "length": 7},
+                        {"word": "properties", "location": 87, "length": 10}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 11,
+            "paragraphNumber": 4,
+            "sentenceOrder": 2,
+            "englishText": "However, as the fun grew, so did the burden of keeping the secret.",
+            "koreanText": "그러나 재미가 커질수록 비밀을 지키는 부담도 커졌다.",
+            "words": [
+                {"word": "However", "meaning": "그렇지만", "location": 0, "length": 7},
+                {"word": "as", "meaning": "때", "location": 9, "length": 2},
+                {"word": "fun", "meaning": "재미", "location": 16, "length": 3},
+                {"word": "grew", "meaning": "커졌다", "location": 20, "length": 4},
+                {"word": "so", "meaning": "그렇게", "location": 26, "length": 2},
+                {"word": "did", "meaning": "했다", "location": 29, "length": 3},
+                {"word": "burden", "meaning": "부담", "location": 37, "length": 6},
+                {"word": "of", "meaning": "~의", "location": 44, "length": 2},
+                {"word": "keeping", "meaning": "유지하는", "location": 47, "length": 7},
+                {"word": "secret", "meaning": "비밀", "location": 59, "length": 6}
+            ],
+            "phrases": [
+                {
+                    "meaning": "커지다",
+                    "expression": [
+                        {"word": "grew", "location": 20, "length": 4},
+                        {"word": "so", "location": 26, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "부담의",
+                    "expression": [
+                        {"word": "burden", "location": 37, "length": 6},
+                        {"word": "of", "location": 44, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "비밀을 유지하는 것",
+                    "expression": [
+                        {"word": "keeping", "location": 47, "length": 7},
+                        {"word": "the", "location": 55, "length": 3},
+                        {"word": "secret", "location": 59, "length": 6}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 12,
+            "paragraphNumber": 4,
+            "sentenceOrder": 3,
+            "englishText": "Maya felt a mounting pressure, knowing that honesty was the best policy, yet torn between loyalty to her friends and the truth.",
+            "koreanText": "마야는 정직이 최고의 정책이라는 것을 알면서도 친구들에 대한 충성과 진실 사이에서 갈등하며 압박감이 증가하고 있었다.",
+            "words": [
+                {"word": "Maya", "meaning": "마야", "location": 0, "length": 4},
+                {"word": "felt", "meaning": "느꼈다", "location": 5, "length": 4},
+                {"word": "mounting", "meaning": "증가하는", "location": 12, "length": 8},
+                {"word": "pressure", "meaning": "압력", "location": 21, "length": 8},
+                {"word": "knowing", "meaning": "알고 있는", "location": 31, "length": 7},
+                {"word": "that", "meaning": "그", "location": 39, "length": 4},
+                {"word": "honesty", "meaning": "정직", "location": 44, "length": 7},
+                {"word": "was", "meaning": "이었다", "location": 52, "length": 3},
+                {"word": "best", "meaning": "최선의", "location": 60, "length": 4},
+                {"word": "policy", "meaning": "정책", "location": 65, "length": 6},
+                {"word": "yet", "meaning": "하지만", "location": 73, "length": 3},
+                {"word": "torn", "meaning": "찢어진", "location": 77, "length": 4},
+                {"word": "between", "meaning": "사이에", "location": 82, "length": 7},
+                {"word": "loyalty", "meaning": "충성심", "location": 90, "length": 7},
+                {"word": "to", "meaning": "에", "location": 98, "length": 2},
+                {"word": "her", "meaning": "그녀의", "location": 101, "length": 3},
+                {"word": "friends", "meaning": "친구들", "location": 105, "length": 7},
+                {"word": "and", "meaning": "그리고", "location": 113, "length": 3},
+                {"word": "truth", "meaning": "진실", "location": 121, "length": 5}
+            ],
+            "phrases": [
+                {
+                    "meaning": "증가하는 압력",
+                    "expression": [
+                        {"word": "mounting", "location": 12, "length": 8},
+                        {"word": "pressure", "location": 21, "length": 8}
+                    ]
+                },
+                {
+                    "meaning": "알고 있는 것",
+                    "expression": [
+                        {"word": "knowing", "location": 31, "length": 7},
+                        {"word": "that", "location": 39, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "최선의 정책",
+                    "expression": [
+                        {"word": "the", "location": 56, "length": 3},
+                        {"word": "best", "location": 60, "length": 4},
+                        {"word": "policy", "location": 65, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "사이에 찢어진",
+                    "expression": [
+                        {"word": "torn", "location": 77, "length": 4},
+                        {"word": "between", "location": 82, "length": 7}
+                    ]
+                },
+                {
+                    "meaning": "에 대한 충성심",
+                    "expression": [
+                        {"word": "loyalty", "location": 90, "length": 7},
+                        {"word": "to", "location": 98, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "친구들과 진실",
+                    "expression": [
+                        {"word": "friends", "location": 105, "length": 7},
+                        {"word": "and", "location": 113, "length": 3},
+                        {"word": "the", "location": 117, "length": 3},
+                        {"word": "truth", "location": 121, "length": 5}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 13,
+            "paragraphNumber": 5,
+            "sentenceOrder": 1,
+            "englishText": "One evening, while playing by the riverbank, Maya overheard her friends arguing about the stones.",
+            "koreanText": "어느 저녁, 강가에서 놀이하던 중 마야는 친구들이 그 돌들에 대해 다투는 소리를 들었다.",
+            "words": [
+                {"word": "One", "meaning": "하나", "location": 0, "length": 3},
+                {"word": "evening", "meaning": "저녁", "location": 4, "length": 7},
+                {"word": "while", "meaning": "동안", "location": 13, "length": 5},
+                {"word": "playing", "meaning": "놀다", "location": 19, "length": 7},
+                {"word": "by", "meaning": "옆에", "location": 27, "length": 2},
+                {"word": "riverbank", "meaning": "강둑", "location": 34, "length": 9},
+                {"word": "Maya", "meaning": "마야", "location": 45, "length": 4},
+                {"word": "overheard", "meaning": "우연히 들었다", "location": 50, "length": 9},
+                {"word": "her", "meaning": "그녀의", "location": 60, "length": 3},
+                {"word": "friends", "meaning": "친구들", "location": 64, "length": 7},
+                {"word": "arguing", "meaning": "싸우다", "location": 72, "length": 7},
+                {"word": "about", "meaning": "에 대하여", "location": 80, "length": 5},
+                {"word": "stones", "meaning": "돌들", "location": 90, "length": 6}
+            ],
+            "phrases": [
+                {
+                    "meaning": "싸우는 것을 우연히 듣다",
+                    "expression": [
+                        {"word": "overheard", "location": 50, "length": 9},
+                        {"word": "arguing", "location": 72, "length": 7}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 14,
+            "paragraphNumber": 5,
+            "sentenceOrder": 2,
+            "englishText": "They began to question if the magic was real or just a figment of their imagination.",
+            "koreanText": "그들은 그 마법이 진짜인지 아니면 단지 그들의 상상 속의 것인지 의문을 가지기 시작했다.",
+            "words": [
+                {"word": "They", "meaning": "그들", "location": 0, "length": 4},
+                {"word": "began", "meaning": "시작했다", "location": 5, "length": 5},
+                {"word": "to", "meaning": "에", "location": 11, "length": 2},
+                {"word": "question", "meaning": "질문하다", "location": 14, "length": 8},
+                {"word": "if", "meaning": "만약", "location": 23, "length": 2},
+                {"word": "magic", "meaning": "마술", "location": 30, "length": 5},
+                {"word": "was", "meaning": "였다", "location": 36, "length": 3},
+                {"word": "real", "meaning": "진짜의", "location": 40, "length": 4},
+                {"word": "or", "meaning": "혹은", "location": 45, "length": 2},
+                {"word": "just", "meaning": "단지", "location": 48, "length": 4},
+                {"word": "figment", "meaning": "허구", "location": 55, "length": 7},
+                {"word": "of", "meaning": "의", "location": 63, "length": 2},
+                {"word": "their", "meaning": "그들의", "location": 66, "length": 5},
+                {"word": "imagination", "meaning": "상상력", "location": 72, "length": 11}
+            ],
+            "phrases": [
+                {
+                    "meaning": "질문하기 시작했다",
+                    "expression": [
+                        {"word": "began", "location": 5, "length": 5},
+                        {"word": "to", "location": 11, "length": 2},
+                        {"word": "question", "location": 14, "length": 8}
+                    ]
+                },
+                {
+                    "meaning": "그들의 상상력의 허구",
+                    "expression": [
+                        {"word": "figment", "location": 55, "length": 7},
+                        {"word": "of", "location": 63, "length": 2},
+                        {"word": "their", "location": 66, "length": 5},
+                        {"word": "imagination", "location": 72, "length": 11}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 15,
+            "paragraphNumber": 5,
+            "sentenceOrder": 3,
+            "englishText": "Feeling guilty, Maya decided it was time to tell them the truth about the stones.",
+            "koreanText": "죄책감을 느낀 마야는 그 돌들에 대한 진실을 친구들에게 말할 때가 되었다고 결정했다.",
+            "words": [
+                {"word": "Feeling", "meaning": "느끼다", "location": 0, "length": 7},
+                {"word": "guilty", "meaning": "죄책감을 느끼는", "location": 8, "length": 6},
+                {"word": "Maya", "meaning": "마야", "location": 16, "length": 4},
+                {"word": "decided", "meaning": "결정하다", "location": 21, "length": 7},
+                {"word": "it", "meaning": "그것", "location": 29, "length": 2},
+                {"word": "was", "meaning": "이었다", "location": 32, "length": 3},
+                {"word": "time", "meaning": "시간", "location": 36, "length": 4},
+                {"word": "to", "meaning": "에", "location": 41, "length": 2},
+                {"word": "tell", "meaning": "말하다", "location": 44, "length": 4},
+                {"word": "them", "meaning": "그들", "location": 49, "length": 4},
+                {"word": "truth", "meaning": "진실", "location": 58, "length": 5},
+                {"word": "about", "meaning": "에 대하여", "location": 64, "length": 5},
+                {"word": "stones", "meaning": "돌들", "location": 74, "length": 6}
+            ],
+            "phrases": [
+                {
+                    "meaning": "죄책감을 느끼는",
+                    "expression": [
+                        {"word": "Feeling", "location": 0, "length": 7},
+                        {"word": "guilty", "location": 8, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "그들에게 말하다",
+                    "expression": [
+                        {"word": "tell", "location": 44, "length": 4},
+                        {"word": "them", "location": 49, "length": 4}
+                    ]
+                },
+                {
+                    "meaning": "진실",
+                    "expression": [
+                        {"word": "the", "location": 54, "length": 3},
+                        {"word": "truth", "location": 58, "length": 5}
+                    ]
+                },
+                {
+                    "meaning": "돌들에 대해",
+                    "expression": [
+                        {"word": "about", "location": 64, "length": 5},
+                        {"word": "the", "location": 70, "length": 3},
+                        {"word": "stones", "location": 74, "length": 6}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 16,
+            "paragraphNumber": 6,
+            "sentenceOrder": 1,
+            "englishText": "Gathering her courage, she called her friends together and shared the story of the stones and the importance of honesty.",
+            "koreanText": "용기를 내어 그녀는 친구들을 모아 돌들에 대한 이야기를 나누고 정직의 중요성을 설명했다.",
+            "words": [
+                {"word": "gathering", "meaning": "모으다", "location": 0, "length": 9},
+                {"word": "her", "meaning": "그녀의", "location": 10, "length": 3},
+                {"word": "courage", "meaning": "용기", "location": 14, "length": 7},
+                {"word": "she", "meaning": "그녀는", "location": 23, "length": 3},
+                {"word": "called", "meaning": "부르다", "location": 27, "length": 6},
+                {"word": "friends", "meaning": "친구들", "location": 38, "length": 7},
+                {"word": "together", "meaning": "함께", "location": 46, "length": 8},
+                {"word": "and", "meaning": "그리고", "location": 55, "length": 3},
+                {"word": "shared", "meaning": "공유하다", "location": 59, "length": 6},
+                {"word": "story", "meaning": "이야기", "location": 70, "length": 5},
+                {"word": "of", "meaning": "의", "location": 76, "length": 2},
+                {"word": "stones", "meaning": "돌들", "location": 83, "length": 6},
+                {"word": "importance", "meaning": "중요성", "location": 98, "length": 10},
+                {"word": "honesty", "meaning": "정직", "location": 112, "length": 7}
+            ],
+            "phrases": [
+                {
+                    "meaning": "용기를 모으다",
+                    "expression": [
+                        {"word": "gathering", "location": 0, "length": 9},
+                        {"word": "her", "location": 10, "length": 3},
+                        {"word": "courage", "location": 14, "length": 7}
+                    ]
+                },
+                {
+                    "meaning": "친구들을 함께 부르다",
+                    "expression": [
+                        {"word": "called", "location": 27, "length": 6},
+                        {"word": "her", "location": 34, "length": 3},
+                        {"word": "friends", "location": 38, "length": 7},
+                        {"word": "together", "location": 46, "length": 8}
+                    ]
+                },
+                {
+                    "meaning": "돌에 대한 이야기를 공유하다",
+                    "expression": [
+                        {"word": "shared", "location": 59, "length": 6},
+                        {"word": "the", "location": 66, "length": 3},
+                        {"word": "story", "location": 70, "length": 5},
+                        {"word": "of", "location": 76, "length": 2},
+                        {"word": "the", "location": 79, "length": 3},
+                        {"word": "stones", "location": 83, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "정직의 중요성",
+                    "expression": [
+                        {"word": "importance", "location": 98, "length": 10},
+                        {"word": "of", "location": 109, "length": 2},
+                        {"word": "honesty", "location": 112, "length": 7}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 17,
+            "paragraphNumber": 6,
+            "sentenceOrder": 2,
+            "englishText": "Initially, her friends were disappointed, feeling betrayed; they had cherished the secret.",
+            "koreanText": "처음에, 친구들은 실망하며 배신감을 느꼈다; 그들은 그 비밀을 소중히 여겼다.",
+            "words": [
+                {"word": "Initially", "meaning": "처음에", "location": 0, "length": 9},
+                {"word": "her", "meaning": "그녀의", "location": 11, "length": 3},
+                {"word": "friends", "meaning": "친구들", "location": 15, "length": 7},
+                {"word": "were", "meaning": "있었다", "location": 23, "length": 4},
+                {"word": "disappointed", "meaning": "실망한", "location": 28, "length": 12},
+                {"word": "feeling", "meaning": "느끼는", "location": 42, "length": 7},
+                {"word": "betrayed", "meaning": "배신당한", "location": 50, "length": 8},
+                {"word": "they", "meaning": "그들", "location": 60, "length": 4},
+                {"word": "had", "meaning": "가졌다", "location": 65, "length": 3},
+                {"word": "cherished", "meaning": "소중히 여긴", "location": 69, "length": 9},
+                {"word": "secret", "meaning": "비밀", "location": 83, "length": 6}
+            ],
+            "phrases": [
+                {
+                    "meaning": "배신당한 느낌",
+                    "expression": [
+                        {"word": "feeling", "location": 42, "length": 7},
+                        {"word": "betrayed", "location": 50, "length": 8}
+                    ]
+                },
+                {
+                    "meaning": "소중히 여겼다",
+                    "expression": [
+                        {"word": "had", "location": 65, "length": 3},
+                        {"word": "cherished", "location": 69, "length": 9}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 18,
+            "paragraphNumber": 6,
+            "sentenceOrder": 3,
+            "englishText": "But as Maya explained her feelings and the value of trust, they began to understand her perspective.",
+            "koreanText": "그러나 마야가 자신의 감정과 신뢰의 가치를 설명하자, 그들은 그녀의 관점을 이해하기 시작했다.",
+            "words": [
+                {"word": "But", "meaning": "그러나", "location": 0, "length": 3},
+                {"word": "as", "meaning": "때문에", "location": 4, "length": 2},
+                {"word": "Maya", "meaning": "마야", "location": 7, "length": 4},
+                {"word": "explained", "meaning": "설명했다", "location": 12, "length": 9},
+                {"word": "her", "meaning": "그녀의", "location": 22, "length": 3},
+                {"word": "feelings", "meaning": "감정들", "location": 26, "length": 8},
+                {"word": "and", "meaning": "그리고", "location": 35, "length": 3},
+                {"word": "value", "meaning": "가치", "location": 43, "length": 5},
+                {"word": "of", "meaning": "의", "location": 49, "length": 2},
+                {"word": "trust", "meaning": "신뢰", "location": 52, "length": 5},
+                {"word": "they", "meaning": "그들", "location": 59, "length": 4},
+                {"word": "began", "meaning": "시작했다", "location": 64, "length": 5},
+                {"word": "to", "meaning": "에", "location": 70, "length": 2},
+                {"word": "understand", "meaning": "이해하다", "location": 73, "length": 10},
+                {"word": "perspective", "meaning": "관점", "location": 88, "length": 11}
+            ],
+            "phrases": []
+        },
+        {
+            "sentenceId": 19,
+            "paragraphNumber": 7,
+            "sentenceOrder": 1,
+            "englishText": "In time, they realized that friendships are built on honesty, and the magic of the stones was not in their sparkle, but in the truth between them.",
+            "koreanText": "시간이 지나면서 그들은 우정이 정직에 기반하고 있다는 것을 깨달았고, 돌들의 마법은 그 빛남이 아니라 그들 사이의 진실이었다.",
+            "words": [
+                {"word": "In", "meaning": "안의", "location": 0, "length": 2},
+                {"word": "time", "meaning": "시간", "location": 3, "length": 4},
+                {"word": "they", "meaning": "그들", "location": 9, "length": 4},
+                {"word": "realized", "meaning": "깨달았다", "location": 14, "length": 8},
+                {"word": "that", "meaning": "그", "location": 23, "length": 4},
+                {"word": "friendships", "meaning": "우정", "location": 28, "length": 11},
+                {"word": "are", "meaning": "이다", "location": 40, "length": 3},
+                {"word": "built", "meaning": "지어진", "location": 44, "length": 5},
+                {"word": "on", "meaning": "위에", "location": 50, "length": 2},
+                {"word": "honesty", "meaning": "정직", "location": 53, "length": 7},
+                {"word": "and", "meaning": "그리고", "location": 62, "length": 3},
+                {"word": "magic", "meaning": "마법", "location": 70, "length": 5},
+                {"word": "of", "meaning": "~의", "location": 76, "length": 2},
+                {"word": "stones", "meaning": "돌들", "location": 83, "length": 6},
+                {"word": "was", "meaning": "이었다", "location": 90, "length": 3},
+                {"word": "not", "meaning": "아니다", "location": 94, "length": 3},
+                {"word": "in", "meaning": "안에", "location": 98, "length": 2},
+                {"word": "their", "meaning": "그들의", "location": 101, "length": 5},
+                {"word": "sparkle", "meaning": "반짝임", "location": 107, "length": 7},
+                {"word": "but", "meaning": "~이 아니라", "location": 116, "length": 3},
+                {"word": "truth", "meaning": "진리", "location": 127, "length": 5},
+                {"word": "between", "meaning": "사이에", "location": 133, "length": 7},
+                {"word": "them", "meaning": "그들", "location": 141, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "기초를 두다",
+                    "expression": [
+                        {"word": "built", "location": 44, "length": 5},
+                        {"word": "on", "location": 50, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "의 마법",
+                    "expression": [
+                        {"word": "the", "location": 66, "length": 3},
+                        {"word": "magic", "location": 70, "length": 5},
+                        {"word": "of", "location": 76, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "안에 아니다",
+                    "expression": [
+                        {"word": "not", "location": 94, "length": 3},
+                        {"word": "in", "location": 98, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "사이의 진리",
+                    "expression": [
+                        {"word": "the", "location": 123, "length": 3},
+                        {"word": "truth", "location": 127, "length": 5},
+                        {"word": "between", "location": 133, "length": 7}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 20,
+            "paragraphNumber": 7,
+            "sentenceOrder": 2,
+            "englishText": "From that day forward, they vowed to always be truthful with each other, no matter how difficult the truth might be.",
+            "koreanText": "그 날 이후로 그들은 진실이 얼마나 어려울지라도 서로에게 항상 진실하게 하겠다고 다짐했다.",
+            "words": [
+                {"word": "from", "meaning": "에서", "location": 0, "length": 4},
+                {"word": "that", "meaning": "그", "location": 5, "length": 4},
+                {"word": "day", "meaning": "날", "location": 10, "length": 3},
+                {"word": "forward", "meaning": "앞으로", "location": 14, "length": 7},
+                {"word": "they", "meaning": "그들", "location": 23, "length": 4},
+                {"word": "vowed", "meaning": "맹세했다", "location": 28, "length": 5},
+                {"word": "to", "meaning": "에", "location": 34, "length": 2},
+                {"word": "always", "meaning": "항상", "location": 37, "length": 6},
+                {"word": "be", "meaning": "이다", "location": 44, "length": 2},
+                {"word": "truthful", "meaning": "정직한", "location": 47, "length": 8},
+                {"word": "with", "meaning": "과 함께", "location": 56, "length": 4},
+                {"word": "each", "meaning": "각각의", "location": 61, "length": 4},
+                {"word": "other", "meaning": "상대방", "location": 66, "length": 5},
+                {"word": "no", "meaning": "아니", "location": 73, "length": 2},
+                {"word": "matter", "meaning": "문제", "location": 76, "length": 6},
+                {"word": "how", "meaning": "어떻게", "location": 83, "length": 3},
+                {"word": "difficult", "meaning": "어려운", "location": 87, "length": 9},
+                {"word": "truth", "meaning": "진실", "location": 101, "length": 5},
+                {"word": "might", "meaning": "할 수 있다", "location": 107, "length": 5},
+                {"word": "be", "meaning": "이다", "location": 113, "length": 2}
+            ],
+            "phrases": [
+                {
+                    "meaning": "그날부터",
+                    "expression": [
+                        {"word": "from", "location": 0, "length": 4},
+                        {"word": "that", "location": 5, "length": 4},
+                        {"word": "day", "location": 10, "length": 3},
+                        {"word": "forward", "location": 14, "length": 7}
+                    ]
+                },
+                {
+                    "meaning": "상대방에게 정직하겠다고 맹세하다",
+                    "expression": [
+                        {"word": "vowed", "location": 28, "length": 5},
+                        {"word": "to", "location": 34, "length": 2},
+                        {"word": "be", "location": 44, "length": 2},
+                        {"word": "truthful", "location": 47, "length": 8},
+                        {"word": "with", "location": 56, "length": 4},
+                        {"word": "each", "location": 61, "length": 4},
+                        {"word": "other", "location": 66, "length": 5}
+                    ]
+                },
+                {
+                    "meaning": "진실이 얼마나 어려울지라도",
+                    "expression": [
+                        {"word": "no", "location": 73, "length": 2},
+                        {"word": "matter", "location": 76, "length": 6},
+                        {"word": "how", "location": 83, "length": 3},
+                        {"word": "difficult", "location": 87, "length": 9},
+                        {"word": "the", "location": 97, "length": 3},
+                        {"word": "truth", "location": 101, "length": 5},
+                        {"word": "might", "location": 107, "length": 5},
+                        {"word": "be", "location": 113, "length": 2}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 21,
+            "paragraphNumber": 8,
+            "sentenceOrder": 1,
+            "englishText": "Maya learned a valuable lesson about honesty and the strength of friendship, knowing that true magic lies in being truthful.",
+            "koreanText": "마야는 정직과 우정의 힘에 대해 귀중한 교훈을 배우며, 진정한 마법은 진실에 있다는 것을 알게 되었다.",
+            "words": [
+                {"word": "Maya", "meaning": "마야", "location": 0, "length": 4},
+                {"word": "learned", "meaning": "배웠다", "location": 5, "length": 7},
+                {"word": "valuable", "meaning": "소중한", "location": 15, "length": 8},
+                {"word": "lesson", "meaning": "교훈", "location": 24, "length": 6},
+                {"word": "about", "meaning": "~에 관한", "location": 31, "length": 5},
+                {"word": "honesty", "meaning": "정직", "location": 37, "length": 7},
+                {"word": "and", "meaning": "그리고", "location": 45, "length": 3},
+                {"word": "strength", "meaning": "힘", "location": 53, "length": 8},
+                {"word": "of", "meaning": "~의", "location": 62, "length": 2},
+                {"word": "friendship", "meaning": "우정", "location": 65, "length": 10},
+                {"word": "knowing", "meaning": "알고 있는", "location": 77, "length": 7},
+                {"word": "that", "meaning": "그", "location": 85, "length": 4},
+                {"word": "true", "meaning": "진정한", "location": 90, "length": 4},
+                {"word": "magic", "meaning": "마법", "location": 95, "length": 5},
+                {"word": "lies", "meaning": "존재하다", "location": 101, "length": 4},
+                {"word": "in", "meaning": "~에", "location": 106, "length": 2},
+                {"word": "being", "meaning": "있음", "location": 109, "length": 5},
+                {"word": "truthful", "meaning": "정직한", "location": 115, "length": 8}
+            ],
+            "phrases": [
+                {
+                    "meaning": "소중한 교훈",
+                    "expression": [
+                        {"word": "valuable", "location": 15, "length": 8},
+                        {"word": "lesson", "location": 24, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "우정의 힘",
+                    "expression": [
+                        {"word": "the", "location": 49, "length": 3},
+                        {"word": "strength", "location": 53, "length": 8},
+                        {"word": "of", "location": 62, "length": 2},
+                        {"word": "friendship", "location": 65, "length": 10}
+                    ]
+                },
+                {
+                    "meaning": "진정한 마법",
+                    "expression": [
+                        {"word": "true", "location": 90, "length": 4},
+                        {"word": "magic", "location": 95, "length": 5}
+                    ]
+                },
+                {
+                    "meaning": "정직한 상태",
+                    "expression": [
+                        {"word": "being", "location": 109, "length": 5},
+                        {"word": "truthful", "location": 115, "length": 8}
+                    ]
+                }
+            ]
+        },
+        {
+            "sentenceId": 22,
+            "paragraphNumber": 8,
+            "sentenceOrder": 2,
+            "englishText": "And as the sun set behind the hills, the laughter of the children rang out, a testament to their renewed bond.",
+            "koreanText": "그리고 언덕 뒤로 해가 지면서, 아이들의 웃음소리가 울려 퍼지며 그들의 새로운 유대를 증명했다.",
+            "words": [
+                {"word": "And", "meaning": "그리고", "location": 0, "length": 3},
+                {"word": "as", "meaning": "처럼", "location": 4, "length": 2},
+                {"word": "sun", "meaning": "태양", "location": 11, "length": 3},
+                {"word": "set", "meaning": "지다", "location": 15, "length": 3},
+                {"word": "behind", "meaning": "뒤에", "location": 19, "length": 6},
+                {"word": "hills", "meaning": "언덕", "location": 30, "length": 5},
+                {"word": "laughter", "meaning": "웃음", "location": 41, "length": 8},
+                {"word": "of", "meaning": "~의", "location": 50, "length": 2},
+                {"word": "children", "meaning": "아이들", "location": 57, "length": 8},
+                {"word": "rang", "meaning": "울리다", "location": 66, "length": 4},
+                {"word": "out", "meaning": "밖으로", "location": 71, "length": 3},
+                {"word": "testament", "meaning": "증거", "location": 78, "length": 9},
+                {"word": "to", "meaning": "에", "location": 88, "length": 2},
+                {"word": "their", "meaning": "그들의", "location": 91, "length": 5},
+                {"word": "renewed", "meaning": "재생된", "location": 97, "length": 7},
+                {"word": "bond", "meaning": "유대", "location": 105, "length": 4}
+            ],
+            "phrases": [
+                {
+                    "meaning": "뒤로 지다",
+                    "expression": [
+                        {"word": "set", "location": 15, "length": 3},
+                        {"word": "behind", "location": 19, "length": 6}
+                    ]
+                },
+                {
+                    "meaning": "울리다",
+                    "expression": [
+                        {"word": "rang", "location": 66, "length": 4},
+                        {"word": "out", "location": 71, "length": 3}
+                    ]
+                },
+                {
+                    "meaning": "증거가 되다",
+                    "expression": [
+                        {"word": "testament", "location": 78, "length": 9},
+                        {"word": "to", "location": 88, "length": 2}
+                    ]
+                },
+                {
+                    "meaning": "재생된 유대",
+                    "expression": [
+                        {"word": "renewed", "location": 97, "length": 7},
+                        {"word": "bond", "location": 105, "length": 4}
+                    ]
+                }
+            ]
+        }
+    ],
+    "quizzes": [
+        {
+            "id": 1,
+            "question": "마야는 돌들에게 마법이 있다고 믿었습니까?",
+            "correctAnswer": false
+        },
+        {
+            "id": 2,
+            "question": "마야는 친구들로부터 돌에 대한 진실을 숨겼습니다.",
+            "correctAnswer": false
+        }
+    ]
+}
