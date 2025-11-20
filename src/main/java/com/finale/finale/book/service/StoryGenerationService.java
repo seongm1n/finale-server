@@ -41,7 +41,8 @@ public class StoryGenerationService {
         String lockKey = "book-generation:" + userId;
 
         if (!redisLockService.tryLock(lockKey, 0, 300)) {
-            throw new CustomException(ErrorCode.BOOK_GENERATION_IN_PROGRESS);
+            log.info("Book generation already in progress for user {}", userId);
+            return;
         }
 
         try {
