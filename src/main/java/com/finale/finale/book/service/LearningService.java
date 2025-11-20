@@ -64,6 +64,7 @@ public class LearningService {
             beforeTodaySentencesRead = 0;
         }
         book.markAsCompleted();
+        book.setCompletedAt();
         bookRepository.save(book);
 
         return new CompleteResponse(
