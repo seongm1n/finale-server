@@ -26,7 +26,7 @@ public class CompletedBookDetailAssembler {
                 book.getTitle(),
                 book.getCategory().getValue(),
                 book.getAbilityScore(),
-                book.getCreatedAt(), // TODO: completedAt 필드로 수정 필요
+                book.getCompletedAt(),
                 buildSentenceResponses(sentences),
                 buildQuizResponses(quizzes),
                 buildUnknownWordResponses(unknownWords),
