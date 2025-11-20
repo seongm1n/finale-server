@@ -23,6 +23,7 @@ import com.finale.finale.book.repository.SentenceRepository;
 import com.finale.finale.book.repository.UnknownPhraseRepository;
 import com.finale.finale.book.repository.UnknownWordRepository;
 import com.finale.finale.book.repository.WordRepository;
+import com.finale.finale.book.service.DefaultBookInjectionService;
 import com.finale.finale.config.JwtTokenProvider;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
@@ -87,6 +88,9 @@ public class AuthServiceTest {
 
     @Mock
     private WordRepository wordRepository;
+
+    @Mock
+    private DefaultBookInjectionService defaultBookInjectionService;
 
     @InjectMocks
     private AuthService authService;
