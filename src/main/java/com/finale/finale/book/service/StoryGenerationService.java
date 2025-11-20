@@ -55,7 +55,9 @@ public class StoryGenerationService {
                     .call()
                     .content();
 
-            saveGeneratedBook(data, response);
+            ParsedStoryData parsedData = parseAIResponse(response);
+
+            saveGeneratedBook(data, parsedData);
 
         } finally {
             redisLockService.unlock(lockKey);
@@ -91,20 +93,26 @@ public class StoryGenerationService {
         );
     }
 
+    private ParsedStoryData parseAIResponse(String response) {
+        String title = extractTitle(response);
+        List<Sentence> sentences = parseResponse(response);
+        List<QuizData> quizDataList = parseQuizData(response);
+        int totalWords = calculateTotalWords(sentences);
+
+        return new ParsedStoryData(title, sentences, quizDataList, totalWords);
+    }
+
     @Transactional
-    protected void saveGeneratedBook(GenerationData data, String response) {
+    protected void saveGeneratedBook(GenerationData data, ParsedStoryData parsedData) {
         User user = userRepository.findById(data.userId())
                 .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
 
-        List<Sentence> sentences = parseResponse(response);
-        int totalWords = calculateTotalWords(sentences);
-
         Book book = new Book(
                 user,
-                extractTitle(response),
+                parsedData.title(),
                 data.category(),
                 data.abilityScore(),
-                totalWords
+                parsedData.totalWords()
         );
 
         List<UnknownWord> reviewWords = unknownWordRepository.findAllById(data.reviewWordIds());
@@ -117,13 +125,15 @@ public class StoryGenerationService {
         book.addReviewPhrase(reviewPhrases);
         bookRepository.save(book);
 
-        List<Quiz> quizzes = parseQuizzes(response, book);
+        List<Quiz> quizzes = parsedData.quizDataList().stream()
+                .map(qd -> new Quiz(book, qd.question(), qd.correctAnswer()))
+                .toList();
         quizRepository.saveAll(quizzes);
 
-        sentences.forEach(sentence -> sentence.updateBook(book));
-        sentenceRepository.saveAll(sentences);
+        parsedData.sentences().forEach(sentence -> sentence.updateBook(book));
+        sentenceRepository.saveAll(parsedData.sentences());
 
-        sentences.forEach(wordMeaningService::extractWordMeanings);
+        parsedData.sentences().forEach(wordMeaningService::extractWordMeanings);
     }
 
     private String createPrompt(List<UnknownWord> unknownWords, List<UnknownPhrase> unknownPhrases, User user, BookCategory category) {
@@ -264,26 +274,25 @@ public class StoryGenerationService {
         return cleaned.trim();
     }
 
-    private List<Quiz> parseQuizzes(String response, Book book) {
+    private List<QuizData> parseQuizData(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
             JsonNode quizzesNode = rootNode.get("quizzes");
 
-            List<Quiz> quizzes = new ArrayList<>();
+            List<QuizData> quizDataList = new ArrayList<>();
 
             if (quizzesNode != null && quizzesNode.isArray()) {
                 for (JsonNode quizNode : quizzesNode) {
-                    Quiz quiz = new Quiz(
-                            book,
+                    QuizData quizData = new QuizData(
                             quizNode.get("question").asText(),
                             quizNode.get("correct_answer").asBoolean()
                     );
-                    quizzes.add(quiz);
+                    quizDataList.add(quizData);
                 }
             }
-            return quizzes;
+            return quizDataList;
         } catch (Exception e) {
             throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);
         }
@@ -308,5 +317,17 @@ public class StoryGenerationService {
             String prompt,
             List<Long> reviewWordIds,
             List<Long> reviewPhraseIds
+    ) {}
+
+    private record ParsedStoryData(
+            String title,
+            List<Sentence> sentences,
+            List<QuizData> quizDataList,
+            int totalWords
+    ) {}
+
+    private record QuizData(
+            String question,
+            boolean correctAnswer
     ) {}
 }
