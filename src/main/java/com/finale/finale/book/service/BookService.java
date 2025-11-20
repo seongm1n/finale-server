@@ -62,7 +62,6 @@ public class BookService {
                 .orElseThrow(() -> new CustomException(ErrorCode.BOOK_NOT_FOUND));
 
         book.validateOwner(user);
-        book.validateCompleted();
         book.toggleIsBookmarked();
 
         return new BookmarkResponse(book.getId(), book.getIsBookmarked());
