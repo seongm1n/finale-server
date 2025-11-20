@@ -36,7 +36,6 @@ public class StoryGenerationService {
     private final UnknownPhraseRepository unknownPhraseRepository;
 
     @Async
-    @Transactional
     public void generate(Long userId) {
         String lockKey = "book-generation:" + userId;
 
@@ -46,61 +45,95 @@ public class StoryGenerationService {
         }
 
         try {
-            User user = userRepository.findById(userId)
-                    .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
-
-            if (bookRepository.countByUserAndIsProvisionFalse(user) >= 2) {
-                log.info("User {} 유저의 미할당 책이 충분합니다.", userId);
+            GenerationData data = loadDataForGeneration(userId);
+            if (data == null) {
                 return;
             }
 
-            List<UnknownWord> unknownWords = unknownWordRepository
-                    .findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
-            unknownWords.forEach(UnknownWord::nextReviewSetting);
-
-            List<UnknownPhrase> unknownPhrases = unknownPhraseRepository
-                    .findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
-            unknownPhrases.forEach(UnknownPhrase::nextReviewSetting);
-
-            BookCategory category = BookCategory.random();
-            String promptText = createPrompt(unknownWords, unknownPhrases, user, category);
-
             String response = chatClient.prompt()
-                    .user(promptText)
+                    .user(data.prompt())
                     .call()
                     .content();
 
-            List<Sentence> sentences = parseResponse(response);
-            int totalWords = calculateTotalWords(sentences);
+            ParsedStoryData parsedData = parseAIResponse(response);
 
-            Book book = new Book(
-                    user,
-                    extractTitle(response),
-                    category,
-                    user.getAbilityScore(),
-                    totalWords
-            );
-            book.addReviewWord(unknownWords);
-            book.addReviewPhrase(unknownPhrases);
-            bookRepository.save(book);
+            saveGeneratedBook(data, parsedData);
 
-            List<Quiz> quizzes = parseQuizzes(response, book);
-            saveQuizzes(quizzes);
-            saveSentences(sentences, book);
-
-            sentences.forEach(wordMeaningService::extractWordMeanings);
         } finally {
             redisLockService.unlock(lockKey);
         }
     }
 
-    private void saveQuizzes(List<Quiz> quizzes) {
-        quizRepository.saveAll(quizzes);
+    @Transactional
+    protected GenerationData loadDataForGeneration(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        if (bookRepository.countByUserAndIsProvisionFalse(user) >= 2) {
+            log.info("User {} 유저의 미할당 책이 충분합니다.", userId);
+            return null;
+        }
+
+        List<UnknownWord> unknownWords = unknownWordRepository
+                .findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
+
+        List<UnknownPhrase> unknownPhrases = unknownPhraseRepository
+                .findTop5ByUser_IdAndNextReviewDateLessThanEqualOrderByNextReviewDateAsc(userId, LocalDate.now());
+
+        BookCategory category = BookCategory.random();
+        String prompt = createPrompt(unknownWords, unknownPhrases, user, category);
+
+        return new GenerationData(
+                userId,
+                user.getAbilityScore(),
+                category,
+                prompt,
+                unknownWords.stream().map(w -> w.getId()).toList(),
+                unknownPhrases.stream().map(p -> p.getId()).toList()
+        );
     }
 
-    private void saveSentences(List<Sentence> sentences, Book book) {
-        sentences.forEach(sentence -> sentence.updateBook(book));
-        sentenceRepository.saveAll(sentences);
+    private ParsedStoryData parseAIResponse(String response) {
+        String title = extractTitle(response);
+        List<Sentence> sentences = parseResponse(response);
+        List<QuizData> quizDataList = parseQuizData(response);
+        int totalWords = calculateTotalWords(sentences);
+
+        return new ParsedStoryData(title, sentences, quizDataList, totalWords);
+    }
+
+    @Transactional
+    protected void saveGeneratedBook(GenerationData data, ParsedStoryData parsedData) {
+        User user = userRepository.findById(data.userId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
+        Book book = new Book(
+                user,
+                parsedData.title(),
+                data.category(),
+                data.abilityScore(),
+                parsedData.totalWords()
+        );
+
+        List<UnknownWord> reviewWords = unknownWordRepository.findAllById(data.reviewWordIds());
+        List<UnknownPhrase> reviewPhrases = unknownPhraseRepository.findAllById(data.reviewPhraseIds());
+
+        reviewWords.forEach(UnknownWord::nextReviewSetting);
+        reviewPhrases.forEach(UnknownPhrase::nextReviewSetting);
+
+        book.addReviewWord(reviewWords);
+        book.addReviewPhrase(reviewPhrases);
+        bookRepository.save(book);
+
+        List<Quiz> quizzes = parsedData.quizDataList().stream()
+                .map(qd -> new Quiz(book, qd.question(), qd.correctAnswer()))
+                .toList();
+        quizRepository.saveAll(quizzes);
+
+        parsedData.sentences().forEach(sentence -> sentence.updateBook(book));
+        sentenceRepository.saveAll(parsedData.sentences());
+
+        parsedData.sentences().forEach(wordMeaningService::extractWordMeanings);
     }
 
     private String createPrompt(List<UnknownWord> unknownWords, List<UnknownPhrase> unknownPhrases, User user, BookCategory category) {
@@ -241,26 +274,25 @@ public class StoryGenerationService {
         return cleaned.trim();
     }
 
-    private List<Quiz> parseQuizzes(String response, Book book) {
+    private List<QuizData> parseQuizData(String response) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             String jsonResponse = extractJsonFromResponse(response);
             JsonNode rootNode = objectMapper.readTree(jsonResponse);
             JsonNode quizzesNode = rootNode.get("quizzes");
 
-            List<Quiz> quizzes = new ArrayList<>();
+            List<QuizData> quizDataList = new ArrayList<>();
 
             if (quizzesNode != null && quizzesNode.isArray()) {
                 for (JsonNode quizNode : quizzesNode) {
-                    Quiz quiz = new Quiz(
-                            book,
+                    QuizData quizData = new QuizData(
                             quizNode.get("question").asText(),
                             quizNode.get("correct_answer").asBoolean()
                     );
-                    quizzes.add(quiz);
+                    quizDataList.add(quizData);
                 }
             }
-            return quizzes;
+            return quizDataList;
         } catch (Exception e) {
             throw new CustomException(ErrorCode.AI_RESPONSE_INVALID);
         }
@@ -277,4 +309,25 @@ public class StoryGenerationService {
                 })
                 .sum();
     }
+
+    private record GenerationData(
+            Long userId,
+            Integer abilityScore,
+            BookCategory category,
+            String prompt,
+            List<Long> reviewWordIds,
+            List<Long> reviewPhraseIds
+    ) {}
+
+    private record ParsedStoryData(
+            String title,
+            List<Sentence> sentences,
+            List<QuizData> quizDataList,
+            int totalWords
+    ) {}
+
+    private record QuizData(
+            String question,
+            boolean correctAnswer
+    ) {}
 }
