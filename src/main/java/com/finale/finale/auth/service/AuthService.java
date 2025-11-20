@@ -10,6 +10,7 @@ import com.finale.finale.auth.dto.response.NicknameCheckResponse;
 import com.finale.finale.auth.dto.response.RefreshResponse;
 import com.finale.finale.auth.dto.response.UserResponse;
 import com.finale.finale.book.repository.*;
+import com.finale.finale.book.service.DefaultBookInjectionService;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,6 +46,7 @@ public class AuthService {
     private final UnknownPhraseRepository unknownPhraseRepository;
     private final PhraseRepository phraseRepository;
     private final WordRepository wordRepository;
+    private final DefaultBookInjectionService defaultBookInjectionService;
 
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
@@ -163,6 +165,8 @@ public class AuthService {
             .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
         user.initAbilityScore(request.abilityScore());
         userRepository.save(user);
+
+        defaultBookInjectionService.injectDefaultBook(user);
 
         return toUserResponse(user);
     }

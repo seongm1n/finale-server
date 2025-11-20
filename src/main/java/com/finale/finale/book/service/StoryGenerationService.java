@@ -40,7 +40,7 @@ public class StoryGenerationService {
     public void generate(Long userId) {
         String lockKey = "book-generation:" + userId;
 
-        if (!redisLockService.tryLock(lockKey, 0, 30)) {
+        if (!redisLockService.tryLock(lockKey, 0, 300)) {
             throw new CustomException(ErrorCode.BOOK_GENERATION_IN_PROGRESS);
         }
 
