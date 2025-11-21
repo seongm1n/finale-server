@@ -1,6 +1,7 @@
 package com.finale.finale.ranking.controller;
 
 import com.finale.finale.ranking.dto.request.RankingResultRequest;
+import com.finale.finale.ranking.dto.response.MyRankingResponse;
 import com.finale.finale.ranking.dto.response.RankingResponse;
 import com.finale.finale.ranking.dto.response.RankingResultResponse;
 import com.finale.finale.ranking.service.RankingService;
@@ -28,6 +29,12 @@ public class RankingController {
             @RequestBody RankingResultRequest request
     ) {
         RankingResultResponse response = rankingService.processResult(userId, request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyRankingResponse> getMyRanking(@AuthenticationPrincipal Long userId) {
+        MyRankingResponse response = rankingService.getMyRanking(userId);
         return ResponseEntity.ok(response);
     }
 }

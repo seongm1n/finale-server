@@ -12,12 +12,6 @@ public record RankingResponse(
         Integer totalParticipants,
         List<RankingEntry> rankings
 ) {
-    public record TimeLeft(
-            int days,
-            int hours,
-            int minutes
-    ) {}
-
     public record RankingEntry(
             int rank,
             Long userId,

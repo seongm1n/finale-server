@@ -5,8 +5,10 @@ import com.finale.finale.auth.repository.UserRepository;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
 import com.finale.finale.ranking.dto.request.RankingResultRequest;
+import com.finale.finale.ranking.dto.response.MyRankingResponse;
 import com.finale.finale.ranking.dto.response.RankingResponse;
 import com.finale.finale.ranking.dto.response.RankingResultResponse;
+import com.finale.finale.ranking.dto.response.TimeLeft;
 import com.finale.finale.ranking.repository.RankingRepository;
 import lombok.RequiredArgsConstructor;
 import org.redisson.client.protocol.ScoredEntry;
@@ -171,6 +173,32 @@ public class RankingService {
         rankingRepository.updateUserInfo(weekStart, userId, nickname, profileImage);
     }
 
+    public MyRankingResponse getMyRanking(Long userId) {
+        LocalDate weekStart = getWeekStart();
+        LocalDate weekEnd = weekStart.plusDays(6);
+
+        Integer myRanking = rankingRepository.getMyRank(weekStart, userId);
+
+        Double scoreDouble = rankingRepository.getScore(weekStart, userId);
+        int score = scoreDouble != null ? scoreDouble.intValue() : 0;
+
+        int totalParticipants = rankingRepository.getTotalParticipants(weekStart);
+
+        if (myRanking == null) {
+            myRanking = 0;
+        }
+
+        return new MyRankingResponse(
+                myRanking,
+                score,
+                totalParticipants,
+                getSeasonName(weekStart),
+                weekStart,
+                weekEnd,
+                calculateTimeLeft(weekEnd)
+        );
+    }
+
     private LocalDate getWeekStart() {
         return LocalDate.now().with(DayOfWeek.MONDAY);
     }
@@ -180,19 +208,19 @@ public class RankingService {
         return weekStart.getMonthValue() + "월 " + weekOfMonth + "주차";
     }
 
-    private RankingResponse.TimeLeft calculateTimeLeft(LocalDate weekEnd) {
+    private TimeLeft calculateTimeLeft(LocalDate weekEnd) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime endOfSeason = weekEnd.atTime(23, 59, 59);
 
         Duration duration = Duration.between(now, endOfSeason);
         if (duration.isNegative()) {
-            return new RankingResponse.TimeLeft(0, 0, 0);
+            return new TimeLeft(0, 0, 0);
         }
 
         int days = (int) duration.toDays();
         int hours = (int) (duration.toHours() % 24);
         int minutes = (int) (duration.toMinutes() % 60);
 
-        return new RankingResponse.TimeLeft(days, hours, minutes);
+        return new TimeLeft(days, hours, minutes);
     }
 }
