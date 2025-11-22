@@ -650,6 +650,8 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence1, sentence2));
+        willDoNothing().given(bookRepository).deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        willDoNothing().given(bookRepository).deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         willDoNothing().given(bookRepository).deleteReviewWordsByBookId(bookId);
         willDoNothing().given(bookRepository).deleteReviewPhrasesByBookId(bookId);
 
@@ -657,6 +659,8 @@ class BookServiceTest {
         bookService.deleteBook(userId, bookId);
 
         // Then
+        verify(bookRepository).deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        verify(bookRepository).deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         verify(bookRepository).deleteReviewWordsByBookId(bookId);
         verify(bookRepository).deleteReviewPhrasesByBookId(bookId);
         verify(wordRepository).deleteAllBySentence(sentence1);
@@ -740,6 +744,8 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of());
+        willDoNothing().given(bookRepository).deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        willDoNothing().given(bookRepository).deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         willDoNothing().given(bookRepository).deleteReviewWordsByBookId(bookId);
         willDoNothing().given(bookRepository).deleteReviewPhrasesByBookId(bookId);
 
@@ -747,6 +753,8 @@ class BookServiceTest {
         bookService.deleteBook(userId, bookId);
 
         // Then
+        verify(bookRepository).deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        verify(bookRepository).deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         verify(bookRepository).deleteReviewWordsByBookId(bookId);
         verify(bookRepository).deleteReviewPhrasesByBookId(bookId);
         verify(bookRepository).delete(book);
@@ -769,6 +777,8 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence));
+        willDoNothing().given(bookRepository).deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        willDoNothing().given(bookRepository).deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         willDoNothing().given(bookRepository).deleteReviewWordsByBookId(bookId);
         willDoNothing().given(bookRepository).deleteReviewPhrasesByBookId(bookId);
 
@@ -781,6 +791,8 @@ class BookServiceTest {
                 unknownWordRepository, unknownPhraseRepository, sentenceRepository, quizRepository
         );
 
+        inOrder.verify(bookRepository).deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        inOrder.verify(bookRepository).deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         inOrder.verify(bookRepository).deleteReviewWordsByBookId(bookId);
         inOrder.verify(bookRepository).deleteReviewPhrasesByBookId(bookId);
         inOrder.verify(wordRepository).deleteAllBySentence(sentence);

@@ -144,6 +144,8 @@ public class BookService {
 
         book.validateOwner(user);
 
+        bookRepository.deleteAllReviewWordsByUnknownWordsOfBook(bookId);
+        bookRepository.deleteAllReviewPhrasesByUnknownPhrasesOfBook(bookId);
         bookRepository.deleteReviewWordsByBookId(bookId);
         bookRepository.deleteReviewPhrasesByBookId(bookId);
 

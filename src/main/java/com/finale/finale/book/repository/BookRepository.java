@@ -46,4 +46,14 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     @Modifying
     @Query(value = "DELETE FROM book_review_phrases WHERE book_id = :bookId", nativeQuery = true)
     void deleteReviewPhrasesByBookId(@Param("bookId") Long bookId);
+
+    @Modifying
+    @Query(value = "DELETE FROM book_review_words WHERE unknown_word_id IN " +
+            "(SELECT id FROM unknown_words WHERE book_id = :bookId)", nativeQuery = true)
+    void deleteAllReviewWordsByUnknownWordsOfBook(@Param("bookId") Long bookId);
+
+    @Modifying
+    @Query(value = "DELETE FROM book_review_phrases WHERE unknown_phrase_id IN " +
+            "(SELECT id FROM unknown_phrases WHERE book_id = :bookId)", nativeQuery = true)
+    void deleteAllReviewPhrasesByUnknownPhrasesOfBook(@Param("bookId") Long bookId);
 }
