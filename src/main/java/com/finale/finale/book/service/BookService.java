@@ -10,6 +10,7 @@ import com.finale.finale.book.dto.response.StoryGenerationResponse;
 import com.finale.finale.book.repository.*;
 import com.finale.finale.exception.CustomException;
 import com.finale.finale.exception.ErrorCode;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookService {
 
+    private final EntityManager entityManager;
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
     private final SentenceRepository sentenceRepository;
@@ -146,6 +148,7 @@ public class BookService {
 
         book.getReviewWords().clear();
         book.getReviewPhrases().clear();
+        entityManager.flush();
 
         List<Sentence> sentences = sentenceRepository.findAllByBook(book);
 
