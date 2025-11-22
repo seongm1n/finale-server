@@ -144,6 +144,9 @@ public class BookService {
 
         book.validateOwner(user);
 
+        book.getReviewWords().clear();
+        book.getReviewPhrases().clear();
+
         List<Sentence> sentences = sentenceRepository.findAllByBook(book);
 
         sentences.forEach(sentence -> {
