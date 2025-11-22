@@ -6,6 +6,7 @@ import com.finale.finale.book.domain.BookCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -37,4 +38,12 @@ public interface BookRepository extends JpaRepository<Book, Long> {
             @Param("bookmarked") Boolean bookmarked,
             Pageable pageable
     );
+
+    @Modifying
+    @Query(value = "DELETE FROM book_review_words WHERE book_id = :bookId", nativeQuery = true)
+    void deleteReviewWordsByBookId(@Param("bookId") Long bookId);
+
+    @Modifying
+    @Query(value = "DELETE FROM book_review_phrases WHERE book_id = :bookId", nativeQuery = true)
+    void deleteReviewPhrasesByBookId(@Param("bookId") Long bookId);
 }
