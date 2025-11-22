@@ -650,11 +650,15 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence1, sentence2));
+        willDoNothing().given(bookRepository).deleteReviewWordsByBookId(bookId);
+        willDoNothing().given(bookRepository).deleteReviewPhrasesByBookId(bookId);
 
         // When
         bookService.deleteBook(userId, bookId);
 
         // Then
+        verify(bookRepository).deleteReviewWordsByBookId(bookId);
+        verify(bookRepository).deleteReviewPhrasesByBookId(bookId);
         verify(wordRepository).deleteAllBySentence(sentence1);
         verify(wordRepository).deleteAllBySentence(sentence2);
         verify(phraseRepository).deleteAllBySentence(sentence1);
@@ -736,11 +740,15 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of());
+        willDoNothing().given(bookRepository).deleteReviewWordsByBookId(bookId);
+        willDoNothing().given(bookRepository).deleteReviewPhrasesByBookId(bookId);
 
         // When
         bookService.deleteBook(userId, bookId);
 
         // Then
+        verify(bookRepository).deleteReviewWordsByBookId(bookId);
+        verify(bookRepository).deleteReviewPhrasesByBookId(bookId);
         verify(bookRepository).delete(book);
     }
 
@@ -761,28 +769,26 @@ class BookServiceTest {
         given(userRepository.findById(userId)).willReturn(Optional.of(user));
         given(bookRepository.findById(bookId)).willReturn(Optional.of(book));
         given(sentenceRepository.findAllByBook(book)).willReturn(List.of(sentence));
+        willDoNothing().given(bookRepository).deleteReviewWordsByBookId(bookId);
+        willDoNothing().given(bookRepository).deleteReviewPhrasesByBookId(bookId);
 
         // When
         bookService.deleteBook(userId, bookId);
 
-        // Then - 순서대로 검증
+        // Then
         var inOrder = inOrder(
-                wordRepository, phraseRepository,
-                unknownWordRepository, unknownPhraseRepository, sentenceRepository, quizRepository,
-                bookRepository
+                bookRepository, wordRepository, phraseRepository,
+                unknownWordRepository, unknownPhraseRepository, sentenceRepository, quizRepository
         );
 
-        // 1. Word, Phrase 먼저 삭제
+        inOrder.verify(bookRepository).deleteReviewWordsByBookId(bookId);
+        inOrder.verify(bookRepository).deleteReviewPhrasesByBookId(bookId);
         inOrder.verify(wordRepository).deleteAllBySentence(sentence);
         inOrder.verify(phraseRepository).deleteAllBySentence(sentence);
-
-        // 2. Book의 자식 엔티티들 삭제
         inOrder.verify(unknownWordRepository).deleteAllByBook(book);
         inOrder.verify(unknownPhraseRepository).deleteAllByBook(book);
         inOrder.verify(sentenceRepository).deleteAllByBook(book);
         inOrder.verify(quizRepository).deleteAllByBook(book);
-
-        // 3. Book 마지막 삭제
         inOrder.verify(bookRepository).delete(book);
     }
 }
